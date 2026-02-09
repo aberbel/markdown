@@ -154,6 +154,24 @@
       cursor: pointer;
     }
 
+    #controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    #exportBtn {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    #exportBtn:hover {
+      background: #1557b0;
+    }
+
     .highlight {
       background-color: yellow;
       color: black;
@@ -172,7 +190,10 @@
   <div id="sidebar">
     <div id="top-bar">
       <h2>📚 Wiki PRO</h2>
-      <button id="toggleTheme">🌙</button>
+      <div id="controls">
+        <button id="exportBtn" title="Exportar HTML">📥 HTML</button>
+        <button id="toggleTheme">🌙</button>
+      </div>
     </div>
     <input type="file" id="folderInput" webkitdirectory multiple>
     <input type="text" id="search" placeholder="Buscar títulos o contenido…">
@@ -193,6 +214,7 @@
     const breadcrumbs = document.getElementById('breadcrumbs');
     const searchInput = document.getElementById('search');
     const toggleThemeBtn = document.getElementById('toggleTheme');
+    const exportBtn = document.getElementById('exportBtn');
 
     let files = {};     // .md
     let allFiles = {};  // todos los archivos
@@ -204,6 +226,63 @@
       const theme = document.body.getAttribute('data-theme');
       document.body.setAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
       toggleThemeBtn.textContent = theme === 'light' ? '☀️' : '🌙';
+    });
+
+    // Exportar HTML
+    exportBtn.addEventListener('click', () => {
+      if (!currentPath) {
+        alert('Abre un documento primero');
+        return;
+      }
+
+      const fileName = currentPath.split('/').pop().replace('.md', '.html');
+      const htmlContent = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${fileName.replace('.html', '')}</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    a {
+      color: #1a73e8;
+    }
+  </style>
+</head>
+<body>
+${content.innerHTML}
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
     });
 
     folderInput.addEventListener('change', () => {
