@@ -1,4 +1,4 @@
-Se permite ver ficheros markdown como html y exportar en local. hay varios proyectos. Ejecutar indexCompleto dentro de  la carpeta wikicompleta
+Se permite ver ficheros markdown como html y exportar en local. hay varios proyectos. Ejecutar indexcompleto.html dentro de  la carpeta version wiki completa
 
 # Fechas En Java
 
