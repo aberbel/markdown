@@ -754,14 +754,21 @@ ${htmlContent}
       border-collapse: collapse;
       width: 100%;
       margin: 1em 0;
+      table-layout: fixed;
+      word-wrap: break-word;
     }
     th, td {
       border: 1px solid #ddd;
-      padding: 8px 12px;
+      padding: 6px 8px;
       text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      font-size: 10pt;
     }
     th {
       background: #f4f4f4;
+      font-weight: bold;
     }
     @media print {
       body {
@@ -776,6 +783,13 @@ ${htmlContent}
         page-break-inside: avoid;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+      }
+      table {
+        page-break-inside: avoid;
+        font-size: 9pt;
+      }
+      th, td {
+        padding: 4px 6px;
       }
     }
   </style>
