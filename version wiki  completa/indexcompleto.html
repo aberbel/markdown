@@ -687,7 +687,7 @@ ${htmlContent}
   <style>
     @page {
       size: A4 ${orientation};
-      margin: 15mm 15mm 20mm 15mm;
+      margin: 15mm 15mm 12mm 15mm;
     }
     @page {
       @bottom-center {
@@ -700,7 +700,7 @@ ${htmlContent}
       font-family: system-ui, -apple-system, sans-serif;
       max-width: 100%;
       margin: 0;
-      padding: 10mm;
+      padding: 8mm 8mm 8mm 8mm;
       line-height: 1.6;
       color: #333;
       font-size: 11pt;
@@ -756,6 +756,7 @@ ${htmlContent}
       margin: 1em 0;
       table-layout: fixed;
       word-wrap: break-word;
+      border: 1px solid #ddd;
     }
     th, td {
       border: 1px solid #ddd;
@@ -769,6 +770,13 @@ ${htmlContent}
     th {
       background: #f4f4f4;
       font-weight: bold;
+      border-bottom: 2px solid #999;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+    tbody tr:last-child td {
+      border-bottom: 1px solid #ddd;
     }
     @media print {
       body {
@@ -787,9 +795,20 @@ ${htmlContent}
       table {
         page-break-inside: avoid;
         font-size: 9pt;
+        border: 1px solid #ddd;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
+      thead {
+        display: table-header-group;
+      }
+      tfoot {
+        display: table-footer-group;
       }
       th, td {
         padding: 4px 6px;
+        border: 1px solid #ddd;
       }
     }
   </style>
