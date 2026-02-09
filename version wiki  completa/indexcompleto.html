@@ -177,6 +177,38 @@
       cursor: not-allowed;
     }
 
+    #pdfOrientation {
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    [data-theme="dark"] #pdfOrientation {
+      background: #222;
+      color: #e8eaed;
+      border-color: #333;
+    }
+
+    #exportPdfBtn {
+      background: #188038;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    #exportPdfBtn:hover {
+      background: #0f5f28;
+    }
+
+    #exportPdfBtn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
     .highlight {
       background-color: yellow;
       color: black;
@@ -197,6 +229,11 @@
       <h2>📚 Wiki PRO</h2>
       <div id="controls">
         <button id="exportBtn" title="Exportar HTML">📥 HTML</button>
+        <select id="pdfOrientation" title="Orientacion PDF">
+          <option value="portrait" selected>Vertical</option>
+          <option value="landscape">Horizontal</option>
+        </select>
+        <button id="exportPdfBtn" title="Exportar PDF">🧾 PDF</button>
         <button id="toggleTheme">🌙</button>
       </div>
     </div>
@@ -220,6 +257,8 @@
     const searchInput = document.getElementById('search');
     const toggleThemeBtn = document.getElementById('toggleTheme');
     const exportBtn = document.getElementById('exportBtn');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    const pdfOrientationSelect = document.getElementById('pdfOrientation');
 
     let files = {};     // .md
     let allFiles = {};  // todos los archivos
@@ -383,6 +422,216 @@ ${htmlContent}
       } finally {
         exportBtn.disabled = false;
         exportBtn.textContent = '📥 HTML';
+      }
+    });
+
+    // Exportar PDF (todos los documentos)
+    exportPdfBtn.addEventListener('click', async () => {
+      if (Object.keys(files).length === 0) {
+        alert('Carga una carpeta wiki primero');
+        return;
+      }
+
+      exportPdfBtn.disabled = true;
+      exportPdfBtn.textContent = '⏳ PDF...';
+
+      try {
+        const orientation = pdfOrientationSelect.value || 'portrait';
+        const orderedPaths = Object.keys(files).sort();
+        const sections = [];
+
+        function readFileAsText(file) {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsText(file);
+          });
+        }
+
+        for (const path of orderedPaths) {
+          const markdownContent = await readFileAsText(files[path]);
+          let htmlContent = marked.parse(markdownContent);
+          
+          // Convertir imágenes a data URIs
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlContent, 'text/html');
+          
+          const imgPromises = Array.from(doc.querySelectorAll('img')).map(async img => {
+            const src = img.getAttribute('src');
+            if (!src || src.startsWith('http') || src.startsWith('data:')) return;
+            const resolved = resolvePath(path, src);
+            const file = allFiles[resolved];
+            if (file) {
+              // Para SVGs, insertarlos inline en lugar de como <img>
+              if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
+                try {
+                  const svgText = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsText(file);
+                  });
+                  
+                  // Crear un elemento temporal para parsear el SVG
+                  const tempDiv = document.createElement('div');
+                  tempDiv.innerHTML = svgText.trim();
+                  const svgElement = tempDiv.querySelector('svg');
+                  
+                  if (svgElement) {
+                    // Asegurar que el SVG tenga dimensiones
+                    if (!svgElement.hasAttribute('width')) svgElement.setAttribute('width', '100%');
+                    if (!svgElement.hasAttribute('height')) svgElement.setAttribute('height', 'auto');
+                    svgElement.style.maxWidth = '100%';
+                    svgElement.style.height = 'auto';
+                    
+                    // Reemplazar el <img> con el <svg> inline
+                    img.parentNode.replaceChild(svgElement, img);
+                  }
+                } catch (e) {
+                  console.error('Error procesando SVG:', e);
+                }
+              } else {
+                // Para otras imágenes, usar data URI normal
+                const dataUrl = await new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result);
+                  reader.readAsDataURL(file);
+                });
+                img.setAttribute('src', dataUrl);
+              }
+            }
+          });
+          
+          await Promise.all(imgPromises);
+          
+          htmlContent = doc.body.innerHTML;
+          const title = path.replace(/^.*?wiki\//, '').replace(/\.md$/, '');
+          sections.push(`<article>
+<h1>${title}</h1>
+${htmlContent}
+</article>`);
+        }
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+          alert('Tu navegador bloqueó la ventana de impresión');
+          return;
+        }
+
+        printWindow.document.open();
+        printWindow.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki PDF</title>
+  <style>
+    @page {
+      size: A4 ${orientation};
+      margin: 15mm 15mm 20mm 15mm;
+    }
+    @page {
+      @bottom-center {
+        content: counter(page) " / " counter(pages);
+        font-size: 10pt;
+        color: #666;
+      }
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 100%;
+      margin: 0;
+      padding: 10mm;
+      line-height: 1.6;
+      color: #333;
+      font-size: 11pt;
+    }
+    article {
+      page-break-before: always;
+    }
+    article:first-of-type {
+      page-break-before: auto;
+    }
+    img, svg {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+    }
+    img[src$=".svg"], img[src*="svg"], svg {
+      width: 100%;
+      height: auto;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border-left: 3px solid #1a73e8;
+      page-break-inside: avoid;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      margin-top: 1.5em;
+      color: #202124;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    @media print {
+      body {
+        max-width: none;
+      }
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+      img, svg {
+        max-width: 100%;
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  ${sections.join('\n')}
+</body>
+</html>`);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+      } catch (error) {
+        alert('Error al exportar PDF: ' + error.message);
+      } finally {
+        exportPdfBtn.disabled = false;
+        exportPdfBtn.textContent = '🧾 PDF';
       }
     });
 
