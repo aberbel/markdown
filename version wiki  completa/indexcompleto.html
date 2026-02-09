@@ -172,6 +172,11 @@
       background: #1557b0;
     }
 
+    #exportBtn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
     .highlight {
       background-color: yellow;
       color: black;
@@ -229,23 +234,52 @@
     });
 
     // Exportar HTML
-    exportBtn.addEventListener('click', () => {
-      if (!currentPath) {
-        alert('Abre un documento primero');
+    exportBtn.addEventListener('click', async () => {
+      if (Object.keys(files).length === 0) {
+        alert('Carga una carpeta wiki primero');
         return;
       }
 
-      const fileName = currentPath.split('/').pop().replace('.md', '.html');
-      const htmlContent = `<!DOCTYPE html>
+      exportBtn.disabled = true;
+      exportBtn.textContent = '⏳ Exportando...';
+
+      try {
+        // Intentar usar File System Access API
+        if ('showDirectoryPicker' in window) {
+          const dirHandle = await window.showDirectoryPicker();
+          let count = 0;
+
+          // Procesar todos los archivos .md
+          for (const path in files) {
+            const mdFile = files[path];
+            const relativePath = path.replace(/^.*?wiki\//, '');
+            const htmlPath = relativePath.replace(/\.md$/, '.html');
+
+            const reader = new FileReader();
+            const markdownContent = await new Promise((resolve) => {
+              reader.onload = () => resolve(reader.result);
+              reader.readAsText(mdFile);
+            });
+
+            // Convertir markdown a HTML
+            let htmlContent = marked.parse(markdownContent);
+            
+            // Actualizar enlaces .md a .html
+            htmlContent = htmlContent.replace(/href="([^"]+)\.md"/g, 'href="$1.html"');
+            htmlContent = htmlContent.replace(/href="\.\.?\/([^"]+)\.md"/g, (match, p1) => {
+              return `href="${p1}.html"`;
+            });
+
+            const fullHtml = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${fileName.replace('.html', '')}</title>
+  <title>${relativePath.replace('.md', '')}</title>
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      max-width: 800px;
+      max-width: 900px;
       margin: 40px auto;
       padding: 20px;
       line-height: 1.6;
@@ -254,35 +288,102 @@
     img {
       max-width: 100%;
       height: auto;
+      border-radius: 4px;
     }
     pre {
       background: #f4f4f4;
-      padding: 10px;
+      padding: 15px;
       border-radius: 4px;
       overflow-x: auto;
+      border-left: 3px solid #1a73e8;
     }
     code {
       background: #f4f4f4;
-      padding: 2px 4px;
+      padding: 2px 6px;
       border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      background: none;
+      padding: 0;
     }
     a {
       color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      margin-top: 1.5em;
+      color: #202124;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
     }
   </style>
 </head>
 <body>
-${content.innerHTML}
+${htmlContent}
 </body>
 </html>`;
 
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      URL.revokeObjectURL(url);
+            // Crear subdirectorios si es necesario
+            const parts = htmlPath.split('/');
+            let currentDir = dirHandle;
+            for (let i = 0; i < parts.length - 1; i++) {
+              currentDir = await currentDir.getDirectoryHandle(parts[i], { create: true });
+            }
+
+            const fileHandle = await currentDir.getFileHandle(parts[parts.length - 1], { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(fullHtml);
+            await writable.close();
+            count++;
+          }
+
+          // Incluir imágenes y otros recursos
+          for (const path in allFiles) {
+            const file = allFiles[path];
+            if (!path.endsWith('.md')) {
+              const relativePath = path.replace(/^.*?wiki\//, '');
+              const parts = relativePath.split('/');
+              let currentDir = dirHandle;
+              for (let i = 0; i < parts.length - 1; i++) {
+                currentDir = await currentDir.getDirectoryHandle(parts[i], { create: true });
+              }
+
+              const fileHandle = await currentDir.getFileHandle(parts[parts.length - 1], { create: true });
+              const writable = await fileHandle.createWritable();
+              await writable.write(file);
+              await writable.close();
+            }
+          }
+
+          alert(`✅ Exportación completa: ${count} documentos HTML guardados en la carpeta seleccionada`);
+        } else {
+          alert('❌ Tu navegador no soporta la exportación de carpetas. Usa Chrome o Edge.');
+        }
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          // Usuario canceló
+        } else {
+          alert('Error al exportar: ' + error.message);
+        }
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = '📥 HTML';
+      }
     });
 
     folderInput.addEventListener('change', () => {
