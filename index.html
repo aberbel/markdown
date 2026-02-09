@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Markdown Wiki Offline</title>
+  <script src="marked.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      background: #f6f7f9;
+    }
+
+    #sidebar {
+      width: 320px;
+      background: #1e1e1e;
+      color: white;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    #fileList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    #fileList li {
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #fileList li:hover {
+      background: #333;
+    }
+
+    #fileList li.active {
+      background: #555;
+    }
+
+    #content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      background: white;
+    }
+
+    pre {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <input type="file" id="folderInput" webkitdirectory multiple>
+    <ul id="fileList"></ul>
+  </div>
+
+  <div id="content">
+    <p>Selecciona una carpeta con Markdown</p>
+  </div>
+
+  <script>
+    const folderInput = document.getElementById('folderInput');
+    const fileList = document.getElementById('fileList');
+    const content = document.getElementById('content');
+
+    let filesByPath = {};
+    let currentPath = null;
+
+    folderInput.addEventListener('change', () => {
+      filesByPath = {};
+      fileList.innerHTML = '';
+      content.innerHTML = '<p>Selecciona un documento…</p>';
+
+      Array.from(folderInput.files)
+        .filter(f => f.name.endsWith('.md'))
+        .sort((a, b) => a.webkitRelativePath.localeCompare(b.webkitRelativePath))
+        .forEach(file => {
+          filesByPath[file.webkitRelativePath] = file;
+
+          const li = document.createElement('li');
+          li.textContent = file.webkitRelativePath;
+          li.onclick = () => openFile(file.webkitRelativePath, li);
+          fileList.appendChild(li);
+        });
+    });
+
+    function openFile(path, liElement = null) {
+      currentPath = path;
+
+      document.querySelectorAll('#fileList li')
+        .forEach(li => li.classList.remove('active'));
+      if (liElement) liElement.classList.add('active');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        content.innerHTML = marked.parse(reader.result);
+        wireInternalLinks();
+      };
+      reader.readAsText(filesByPath[path]);
+    }
+
+    function wireInternalLinks() {
+      content.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('http')) return;
+
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const resolved = resolvePath(currentPath, href);
+          if (filesByPath[resolved]) {
+            openFile(resolved);
+          } else {
+            alert('Archivo no encontrado: ' + href);
+          }
+        });
+      });
+    }
+
+    function resolvePath(base, relative) {
+      const baseParts = base.split('/').slice(0, -1);
+      const relParts = relative.split('/');
+
+      for (const part of relParts) {
+        if (part === '.' || part === '') continue;
+        if (part === '..') baseParts.pop();
+        else baseParts.push(part);
+      }
+
+      return baseParts.join('/');
+    }
+  </script>
+
+</body>
+</html>
