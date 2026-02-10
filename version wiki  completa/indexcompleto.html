@@ -1159,6 +1159,9 @@ ${htmlContent}
                     if (!svgElement.hasAttribute('height')) svgElement.setAttribute('height', 'auto');
                     svgElement.style.maxWidth = '100%';
                     svgElement.style.height = 'auto';
+                    svgElement.style.display = 'block';
+                    svgElement.style.borderRadius = '4px';
+                    svgElement.style.margin = '1em 0';
                     
                     // Reemplazar el <img> con el <svg> inline
                     img.parentNode.replaceChild(svgElement, img);
@@ -1167,13 +1170,19 @@ ${htmlContent}
                   console.error('Error procesando SVG:', e);
                 }
               } else {
-                // Para otras imágenes, usar data URI normal
+                // Para otras imágenes (PNG, JPG, etc.), usar data URI con estilos
                 const dataUrl = await new Promise((resolve) => {
                   const reader = new FileReader();
                   reader.onload = () => resolve(reader.result);
                   reader.readAsDataURL(file);
                 });
                 img.setAttribute('src', dataUrl);
+                // Aplicar los mismos estilos que a los SVG
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                img.style.borderRadius = '4px';
+                img.style.margin = '1em 0';
               }
             }
           });
