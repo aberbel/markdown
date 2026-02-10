@@ -18,3 +18,5 @@
 - **Líneas**: Porcentaje de líneas de código tocadas
 - **Complejidad**: Cobertura de complejidad ciclomática
 - **Métodos**: Porcentaje de métodos con al menos una prueba
+
+<span style="background-color: lightgreen">esto es verde</span> y <span style="background-color: #ffcccc">esto es rojo</span>

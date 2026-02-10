@@ -2,8 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wiki Portátil PRO</title>
   <script src="marked.min.js"></script>
+  <link href="bootstrap.min.css" rel="stylesheet">
 
   <style>
     :root {
@@ -24,13 +26,24 @@
       --highlight: #333;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
     body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      height: 100vh;
-      display: flex;
       background: var(--bg-color);
       color: var(--text-color);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .wiki-container {
+      display: flex;
+      height: 100vh;
+      gap: 0;
     }
 
     #sidebar {
@@ -39,11 +52,42 @@
       color: var(--sidebar-text);
       padding: 15px;
       overflow-y: auto;
+      flex-shrink: 0;
+      border-right: 1px solid var(--highlight);
+      display: flex;
+      flex-direction: column;
     }
 
     #sidebar h2 {
-      font-size: 16px;
-      margin-top: 0;
+      font-size: 18px;
+      margin: 0 0 15px 0;
+      color: var(--sidebar-text);
+    }
+
+    #folderBtn {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    #folderBtn:hover {
+      background: #1557b0;
+    }
+
+    #search {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid var(--highlight);
+      border-radius: 4px;
+      background: var(--bg-color);
+      color: var(--text-color);
     }
 
     #fileList {
@@ -51,12 +95,17 @@
       padding: 0;
       margin: 0;
       font-size: 14px;
+      flex: 1;
+      overflow-y: auto;
+      border-radius: 4px;
     }
 
     #fileList li {
-      padding: 6px 8px;
+      padding: 8px 10px;
       cursor: pointer;
       border-radius: 4px;
+      margin-bottom: 2px;
+      word-break: break-word;
     }
 
     #fileList li:hover {
@@ -64,38 +113,72 @@
     }
 
     #fileList li.active {
-      background: var(--highlight);
+      background: var(--link-color);
+      color: white;
     }
 
     #content-wrapper {
       flex: 1;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
     }
 
     #breadcrumbs {
-      padding: 10px 40px;
-      font-size: 14px;
+      padding: 10px 20px;
+      font-size: 13px;
       background: #f0f0f0;
       border-bottom: 1px solid #ddd;
+      overflow-x: auto;
+      white-space: nowrap;
     }
 
     [data-theme="dark"] #breadcrumbs {
       background: #1c1c1c;
-      border-bottom: 1px solid #333;
+      border-bottom-color: #333;
+    }
+
+    #breadcrumbs a {
+      color: var(--link-color);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #breadcrumbs a:hover {
+      text-decoration: underline;
     }
 
     #content {
       flex: 1;
-      padding: 20px 40px;
+      padding: 20px 30px;
       overflow-y: auto;
+      overflow-x: hidden;
+      word-wrap: break-word;
+    }
+
+    #content p {
+      margin: 0 0 1em 0;
+    }
+
+    #content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    #content h1 {
+      font-size: 2em;
+      border-bottom: 2px solid var(--link-color);
+      padding-bottom: 0.3em;
     }
 
     pre {
       background: #f0f0f0;
-      padding: 10px;
+      padding: 12px;
       border-radius: 4px;
       overflow-x: auto;
+      border-left: 3px solid var(--link-color);
+      margin: 1em 0;
     }
 
     [data-theme="dark"] pre {
@@ -106,14 +189,26 @@
       background: #eee;
       padding: 2px 4px;
       border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.9em;
     }
 
     [data-theme="dark"] code {
       background: #333;
     }
 
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
     a {
       color: var(--link-color);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
 
     img {
@@ -121,6 +216,9 @@
       height: auto;
       cursor: zoom-in;
       transition: transform 0.2s;
+      display: block;
+      border-radius: 4px;
+      margin: 1em 0;
     }
 
     img.zoomed {
@@ -133,39 +231,63 @@
       max-width: none;
       max-height: 90%;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      border-radius: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+      background: var(--bg-color);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    [data-theme="dark"] th,
+    [data-theme="dark"] td {
+      border-color: #444;
+    }
+
+    th {
+      background: #f4f4f4;
+      font-weight: bold;
+    }
+
+    [data-theme="dark"] th {
+      background: #222;
     }
 
     #top-bar {
       display: flex;
       justify-content: space-between;
-      padding: 10px 15px;
       align-items: center;
-    }
-
-    #search {
-      width: 100%;
-      margin-top: 10px;
-      padding: 5px;
-    }
-
-    button {
-      padding: 5px 10px;
-      margin-left: 5px;
-      cursor: pointer;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     #controls {
       display: flex;
-      gap: 5px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 8px 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: background-color 0.2s;
+      white-space: nowrap;
     }
 
     #exportBtn {
       background: #1a73e8;
       color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 12px;
     }
 
     #exportBtn:hover {
@@ -177,27 +299,9 @@
       cursor: not-allowed;
     }
 
-    #pdfOrientation {
-      font-size: 12px;
-      padding: 6px 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      background: #fff;
-    }
-
-    [data-theme="dark"] #pdfOrientation {
-      background: #222;
-      color: #e8eaed;
-      border-color: #333;
-    }
-
     #exportPdfBtn {
       background: #188038;
       color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 12px;
     }
 
     #exportPdfBtn:hover {
@@ -209,10 +313,38 @@
       cursor: not-allowed;
     }
 
+    #pdfOrientation {
+      padding: 6px 10px;
+      border: 1px solid var(--highlight);
+      border-radius: 4px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-size: 13px;
+    }
+
+    #toggleTheme {
+      background: var(--highlight);
+      color: var(--sidebar-text);
+      padding: 6px 10px;
+    }
+
+    #toggleTheme:hover {
+      background: #666;
+    }
+
+    #editBtnHeader {
+      background: #1a73e8;
+      color: white;
+    }
+
+    #editBtnHeader:hover {
+      background: #1557b0;
+    }
+
     .highlight {
       background-color: yellow;
       color: black;
-      padding: 2px;
+      padding: 2px 4px;
       border-radius: 2px;
     }
 
@@ -232,6 +364,7 @@
       z-index: 1000;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
     #pdfModal.show {
@@ -244,20 +377,22 @@
       padding: 20px;
       border-radius: 8px;
       max-width: 600px;
-      width: 90%;
+      width: 100%;
       max-height: 80vh;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
     #pdfModalContent h3 {
       margin-top: 0;
+      margin-bottom: 15px;
     }
 
     #pdfFileList {
       flex: 1;
       overflow-y: auto;
-      border: 1px solid #ccc;
+      border: 1px solid var(--highlight);
       border-radius: 4px;
       padding: 10px;
       margin: 10px 0;
@@ -269,13 +404,10 @@
       padding: 8px;
       margin: 4px 0;
       background: var(--bg-color);
-      border: 1px solid #ddd;
+      border: 1px solid var(--highlight);
       border-radius: 4px;
       gap: 10px;
-    }
-
-    [data-theme="dark"] .pdf-file-item {
-      border-color: #444;
+      flex-wrap: wrap;
     }
 
     .pdf-file-item input[type="checkbox"] {
@@ -285,50 +417,407 @@
     .pdf-file-item span {
       flex: 1;
       font-size: 13px;
+      min-width: 150px;
     }
 
     .pdf-file-item button {
       padding: 4px 8px;
       font-size: 12px;
       margin: 0 2px;
+      background: #1a73e8;
+      color: white;
+    }
+
+    .pdf-file-item button:hover {
+      background: #1557b0;
+    }
+
+    .pdf-file-item button:disabled {
+      background: #999;
+      cursor: not-allowed;
     }
 
     #pdfModalButtons {
       display: flex;
       gap: 10px;
       justify-content: flex-end;
-      margin-top: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
     }
 
     #pdfModalButtons button {
       padding: 8px 16px;
     }
+
+    #pdfSelectAll, #pdfCancel {
+      background: #5f6368;
+      color: white;
+    }
+
+    #pdfSelectAll:hover, #pdfCancel:hover {
+      background: #3c4043;
+    }
+
+    #pdfConfirm {
+      background: #188038;
+      color: white;
+    }
+
+    #pdfConfirm:hover {
+      background: #0f5f28;
+    }
+
+    #editor-container {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    #editor-container.active {
+      display: flex;
+    }
+
+    #content.edit-mode {
+      display: none;
+    }
+
+    #editor-toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 12px 20px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ddd;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    [data-theme="dark"] #editor-toolbar {
+      background: #1c1c1c;
+      border-bottom-color: #333;
+    }
+
+    .view-btn, .save-btn, .cancel-btn, .edit-btn {
+      background: #1a73e8;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+    }
+
+    .save-btn {
+      background: #188038;
+    }
+
+    .save-btn:hover {
+      background: #0f5f28;
+    }
+
+    .save-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    .cancel-btn {
+      background: #5f6368;
+    }
+
+    .cancel-btn:hover {
+      background: #3c4043;
+    }
+
+    .view-btn:hover, .edit-btn:hover {
+      background: #1557b0;
+    }
+
+    #edit-status {
+      margin-left: auto;
+      font-size: 12px;
+    }
+
+    #editor-textarea {
+      flex: 1;
+      padding: 16px 20px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      border: none;
+      background: var(--bg-color);
+      color: var(--text-color);
+      outline: none;
+      overflow-y: auto;
+      overflow-x: auto;
+      word-wrap: break-word;
+    }
+
+    #editor-textarea::placeholder {
+      color: #999;
+    }
+
+    .file-modified::before {
+      content: '● ';
+      color: #ff6b6b;
+      margin-right: 5px;
+    }
+
+    /* Responsive design para tablets y móviles */
+    @media (max-width: 768px) {
+      .wiki-container {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        max-height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid var(--highlight);
+        order: -1;
+      }
+
+      #sidebar h2 {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      #top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #top-bar h2 {
+        margin: 0;
+      }
+
+      #controls {
+        width: 100%;
+      }
+
+      #folderBtn {
+        margin-bottom: 8px;
+      }
+
+      #search {
+        margin-bottom: 8px;
+      }
+
+      #fileList {
+        max-height: 150px;
+      }
+
+      #content-wrapper {
+        flex: 1;
+        min-height: 0;
+      }
+
+      #content {
+        padding: 15px 20px;
+        font-size: 14px;
+      }
+
+      #breadcrumbs {
+        padding: 8px 15px;
+        font-size: 12px;
+      }
+
+      #editor-toolbar {
+        padding: 10px 15px;
+        gap: 8px;
+      }
+
+      button {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      #pdfModalContent {
+        max-width: 90%;
+        max-height: 70vh;
+        padding: 15px;
+      }
+
+      #editor-textarea {
+        padding: 12px 15px;
+        font-size: 13px;
+      }
+
+      #content h1 {
+        font-size: 1.5em;
+      }
+
+      img {
+        margin: 0.5em 0;
+      }
+    }
+
+    /* Responsive design para móviles pequeños */
+    @media (max-width: 480px) {
+      #sidebar {
+        max-height: 35vh;
+      }
+
+      #fileList {
+        max-height: 100px;
+        font-size: 12px;
+      }
+
+      #fileList li {
+        padding: 6px 8px;
+      }
+
+      #content {
+        padding: 12px 15px;
+        font-size: 13px;
+      }
+
+      #breadcrumbs {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      #top-bar h2 {
+        font-size: 14px;
+      }
+
+      button {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+
+      #controls {
+        gap: 4px;
+      }
+
+      #exportBtn, #exportPdfBtn {
+        flex: 1;
+        min-width: 60px;
+      }
+
+      #pdfOrientation {
+        padding: 4px 6px;
+        font-size: 11px;
+      }
+
+      #toggleTheme {
+        padding: 6px;
+      }
+
+      #editor-toolbar {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .view-btn, .save-btn, .cancel-btn, .edit-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+
+      #edit-status {
+        font-size: 10px;
+        margin-left: auto;
+      }
+
+      #editor-textarea {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      #pdfModalContent {
+        padding: 12px;
+      }
+
+      #pdfFileList {
+        padding: 8px;
+      }
+
+      .pdf-file-item {
+        padding: 6px;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .pdf-file-item button {
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+
+      #pdfModalButtons {
+        gap: 6px;
+      }
+
+      #pdfModalButtons button {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 6px 8px;
+      }
+
+      pre {
+        padding: 10px;
+        font-size: 11px;
+      }
+
+      code {
+        font-size: 0.85em;
+      }
+
+      #content h1, #content h2, #content h3 {
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+      }
+
+      #content h1 {
+        font-size: 1.4em;
+      }
+
+      #content h2 {
+        font-size: 1.2em;
+      }
+    }
   </style>
+  <script src="bootstrap.bundle.min.js"></script>
 </head>
-<body data-theme="light">
+<body data-theme="light" class="m-0 p-0">
 
-  <div id="sidebar">
-    <div id="top-bar">
-      <h2>📚 Wiki PRO</h2>
-      <div id="controls">
-        <button id="exportBtn" title="Exportar HTML">📥 HTML</button>
-        <select id="pdfOrientation" title="Orientacion PDF">
-          <option value="portrait" selected>Vertical</option>
-          <option value="landscape">Horizontal</option>
-        </select>
-        <button id="exportPdfBtn" title="Exportar PDF">🧾 PDF</button>
-        <button id="toggleTheme">🌙</button>
+  <div class="wiki-container">
+    <div id="sidebar">
+      <div id="top-bar">
+        <h2>📚 Wiki PRO</h2>
+        <div id="controls">
+          <button id="exportBtn" class="btn btn-info btn-sm" title="Exportar HTML">📥 HTML</button>
+          <select id="pdfOrientation" class="form-select form-select-sm" title="Orientacion PDF" style="max-width: 80px;">
+            <option value="portrait" selected>Vertical</option>
+            <option value="landscape">Horizontal</option>
+          </select>
+          <button id="exportPdfBtn" class="btn btn-success btn-sm" title="Exportar PDF">🧾 PDF</button>
+          <button id="toggleTheme" class="btn btn-secondary btn-sm" title="Cambiar tema">🌙</button>
+        </div>
       </div>
+      <button id="folderBtn">📁 Seleccionar carpeta</button>
+      <input type="text" id="search" class="form-control form-control-sm" placeholder="Buscar títulos o contenido…">
+      <ul id="fileList"></ul>
     </div>
-    <input type="file" id="folderInput" webkitdirectory multiple>
-    <input type="text" id="search" placeholder="Buscar títulos o contenido…">
-    <ul id="fileList"></ul>
-  </div>
 
-  <div id="content-wrapper">
-    <div id="breadcrumbs">Selecciona la carpeta <strong>wiki/</strong></div>
-    <div id="content">
-      <p>Selecciona la carpeta <strong>wiki/</strong></p>
+    <div id="content-wrapper">
+      <div id="breadcrumbs">Selecciona una carpeta para empezar</div>
+      <div id="editor-container">
+        <div id="editor-toolbar">
+          <button id="viewBtn" class="view-btn btn btn-sm" title="Ver documento (Esc)">👁️ Ver</button>
+          <button id="saveBtn" class="save-btn btn btn-sm" title="Guardar cambios (Ctrl+S)" disabled>💾 Guardar</button>
+          <button id="cancelBtn" class="cancel-btn btn btn-sm" title="Descartar cambios">✕ Cancelar</button>
+          <span id="edit-status"></span>
+        </div>
+        <textarea id="editor-textarea" placeholder="Escriba aquí..."></textarea>
+      </div>
+      <div id="content">
+        <p>Selecciona una carpeta para empezar</p>
+      </div>
     </div>
   </div>
 
@@ -337,15 +826,15 @@
       <h3>Seleccionar archivos para PDF</h3>
       <div id="pdfFileList"></div>
       <div id="pdfModalButtons">
-        <button id="pdfSelectAll">Seleccionar todos</button>
-        <button id="pdfCancel">Cancelar</button>
-        <button id="pdfConfirm" style="background: #188038; color: white; border: none; border-radius: 4px;">Generar PDF</button>
+        <button id="pdfSelectAll" class="btn btn-secondary btn-sm">Seleccionar todos</button>
+        <button id="pdfCancel" class="btn btn-secondary btn-sm">Cancelar</button>
+        <button id="pdfConfirm" class="btn btn-success btn-sm">Generar PDF</button>
       </div>
     </div>
   </div>
 
   <script>
-    const folderInput = document.getElementById('folderInput');
+    const folderBtn = document.getElementById('folderBtn');
     const fileList = document.getElementById('fileList');
     const content = document.getElementById('content');
     const breadcrumbs = document.getElementById('breadcrumbs');
@@ -359,6 +848,12 @@
     const pdfSelectAll = document.getElementById('pdfSelectAll');
     const pdfCancel = document.getElementById('pdfCancel');
     const pdfConfirm = document.getElementById('pdfConfirm');
+    const editorContainer = document.getElementById('editor-container');
+    const editorTextarea = document.getElementById('editor-textarea');
+    const viewBtn = document.getElementById('viewBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const editStatus = document.getElementById('edit-status');
 
     let pdfOrderedFiles = [];
 
@@ -366,6 +861,10 @@
     let allFiles = {};  // todos los archivos
     let currentPath = null;
     let lastSearchTerm = '';
+    let rootFolder = '';  // Carpeta raíz detectada
+    let dirHandle = null; // Almacenar el directorio para guardar
+    let originalContent = ''; // Contenido original para detectar cambios
+    let isEditing = false; // Si está en modo edición
 
     // Cambiar tema
     toggleThemeBtn.addEventListener('click', () => {
@@ -374,10 +873,28 @@
       toggleThemeBtn.textContent = theme === 'light' ? '☀️' : '🌙';
     });
 
+    // Detectar carpeta raíz automáticamente
+    function detectRootFolder(filePaths) {
+      if (filePaths.length === 0) return '';
+      
+      // Obtener todas las partes de ruta
+      const parts = filePaths[0].split('/');
+      
+      // Encontrar la carpeta común más profunda
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const potentialRoot = parts[i];
+        if (potentialRoot && potentialRoot !== '.' && !potentialRoot.includes('.')) {
+          return potentialRoot + '/';
+        }
+      }
+      
+      return '';
+    }
+
     // Exportar HTML
     exportBtn.addEventListener('click', async () => {
       if (Object.keys(files).length === 0) {
-        alert('Carga una carpeta wiki primero');
+        alert('Carga una carpeta primero');
         return;
       }
 
@@ -393,7 +910,7 @@
           // Procesar todos los archivos .md
           for (const path in files) {
             const mdFile = files[path];
-            const relativePath = path.replace(/^.*?wiki\//, '');
+            const relativePath = path.replace(new RegExp(`^.*?${rootFolder.replace(/\//g, '\\/')}`), '');
             const htmlPath = relativePath.replace(/\.md$/, '.html');
 
             const reader = new FileReader();
@@ -497,7 +1014,7 @@ ${htmlContent}
           for (const path in allFiles) {
             const file = allFiles[path];
             if (!path.endsWith('.md')) {
-              const relativePath = path.replace(/^.*?wiki\//, '');
+              const relativePath = path.replace(new RegExp(`^.*?${rootFolder.replace(/\//g, '\\/')}`), '');
               const parts = relativePath.split('/');
               let currentDir = dirHandle;
               for (let i = 0; i < parts.length - 1; i++) {
@@ -530,7 +1047,7 @@ ${htmlContent}
     // Mostrar modal de selección de archivos
     exportPdfBtn.addEventListener('click', () => {
       if (Object.keys(files).length === 0) {
-        alert('Carga una carpeta wiki primero');
+        alert('Carga una carpeta primero');
         return;
       }
 
@@ -550,7 +1067,7 @@ ${htmlContent}
         div.className = 'pdf-file-item';
         div.innerHTML = `
           <input type="checkbox" checked data-path="${path}">
-          <span>${path.replace(/^.*?wiki\//, '')}</span>
+          <span>${path.replace(new RegExp(`^.*?${rootFolder.replace(/\//g, '\\/')}`), '')}</span>
           <button onclick="movePdfFile(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
           <button onclick="movePdfFile(${index}, 1)" ${index === pdfOrderedFiles.length - 1 ? 'disabled' : ''}>↓</button>
         `;
@@ -664,9 +1181,7 @@ ${htmlContent}
           await Promise.all(imgPromises);
           
           htmlContent = doc.body.innerHTML;
-          const title = path.replace(/^.*?wiki\//, '').replace(/\.md$/, '');
           sections.push(`<article>
-<h1>${title}</h1>
 ${htmlContent}
 </article>`);
         }
@@ -828,42 +1343,84 @@ ${htmlContent}
       }
     }
 
-    folderInput.addEventListener('change', () => {
-      files = {};
-      allFiles = {};
-      fileList.innerHTML = '';
-      searchInput.value = '';
-      content.innerHTML = '<p>Selecciona un documento…</p>';
-      breadcrumbs.textContent = '';
-
-      Array.from(folderInput.files).forEach(file => {
-        allFiles[file.webkitRelativePath] = file;
-        if (file.name.endsWith('.md')) files[file.webkitRelativePath] = file;
-      });
-
-      for (const path in files) {
-        const li = document.createElement('li');
-        li.textContent = path.replace(/^.*?wiki\//, '');
-        li.onclick = () => openFile(path, li);
-        fileList.appendChild(li);
+    folderBtn.addEventListener('click', async () => {
+      if (!('showDirectoryPicker' in window)) {
+        alert('Tu navegador no soporta esta función. Usa Chrome o Edge.');
+        return;
       }
 
-      // Abrir README.md por defecto
-      const readme = Object.keys(files).find(p => p.endsWith('README.md'));
-      if (readme) openFile(readme);
+      try {
+        dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        
+        files = {};
+        allFiles = {};
+        fileList.innerHTML = '';
+        searchInput.value = '';
+        content.innerHTML = '<p>Cargando archivos…</p>';
+        breadcrumbs.textContent = '';
+
+        // Leer todos los archivos recursivamente
+        await readDirectory(dirHandle, '');
+
+        rootFolder = dirHandle.name + '/';
+
+        // Mostrar archivos en la lista
+        for (const path in files) {
+          const li = document.createElement('li');
+          li.textContent = path;
+          li.onclick = () => openFile(path, li);
+          fileList.appendChild(li);
+        }
+
+        // Abrir README.md por defecto
+        const readme = Object.keys(files).find(p => p.endsWith('README.md'));
+        if (readme) openFile(readme);
+        else content.innerHTML = '<p>Selecciona un documento de la lista</p>';
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          console.error('Error al cargar carpeta:', e);
+        }
+      }
     });
 
+    async function readDirectory(dirHandle, path) {
+      for await (const entry of dirHandle.values()) {
+        const entryPath = path ? `${path}/${entry.name}` : entry.name;
+        
+        if (entry.kind === 'file') {
+          const file = await entry.getFile();
+          allFiles[entryPath] = file;
+          if (file.name.endsWith('.md')) {
+            files[entryPath] = file;
+          }
+        } else if (entry.kind === 'directory') {
+          await readDirectory(entry, entryPath);
+        }
+      }
+    }
+
     function openFile(path, li = null) {
+      // Si hay cambios sin guardar, preguntar
+      if (isEditing && originalContent !== editorTextarea.value) {
+        if (!confirm('Hay cambios sin guardar. ¿Descartar?')) {
+          return;
+        }
+      }
+
       currentPath = path;
       document.querySelectorAll('#fileList li').forEach(el => el.classList.remove('active'));
       if (li) li.classList.add('active');
 
       const reader = new FileReader();
       reader.onload = () => {
-        content.innerHTML = marked.parse(reader.result);
+        originalContent = reader.result;
+        editorTextarea.value = originalContent;
+        content.innerHTML = marked.parse(originalContent);
         wireLinks();
         wireImages();
         wireBreadcrumbs();
+        exitEditMode();
+        updateEditStatus();
         
         // Resaltar término de búsqueda en el contenido
         if (lastSearchTerm) {
@@ -872,6 +1429,144 @@ ${htmlContent}
       };
       reader.readAsText(files[path]);
     }
+
+    function enterEditMode() {
+      isEditing = true;
+      editorContainer.classList.add('active');
+      content.classList.add('edit-mode');
+      editorTextarea.focus();
+      updateEditStatus();
+    }
+
+    function exitEditMode() {
+      isEditing = false;
+      editorContainer.classList.remove('active');
+      content.classList.remove('edit-mode');
+      updateEditStatus();
+    }
+
+    function updateEditStatus() {
+      if (!isEditing) {
+        editStatus.textContent = '';
+        return;
+      }
+      const hasChanges = editorTextarea.value !== originalContent;
+      editStatus.textContent = hasChanges ? '● Cambios sin guardar' : '✔ Guardado';
+      editStatus.style.color = hasChanges ? '#ff6b6b' : '#34a853';
+      saveBtn.disabled = !hasChanges;
+    }
+
+    async function saveFile() {
+      if (!currentPath) {
+        alert('Por favor, abre un documento primero');
+        return;
+      }
+      
+      if (!dirHandle) {
+        alert('No hay permisos de escritura. Recarga la carpeta.');
+        return;
+      }
+      
+      saveBtn.disabled = true;
+      saveBtn.textContent = '💾 Guardando...';
+
+      try {
+        const mdContent = editorTextarea.value;
+        const parts = currentPath.split('/');
+
+        // Navegar a través de los subdirectorios
+        let currentDir = dirHandle;
+        for (let i = 0; i < parts.length - 1; i++) {
+          currentDir = await currentDir.getDirectoryHandle(parts[i]);
+        }
+
+        // Guardar el archivo
+        const fileName = parts[parts.length - 1];
+        const fileHandle = await currentDir.getFileHandle(fileName);
+        const writable = await fileHandle.createWritable();
+        await writable.write(mdContent);
+        await writable.close();
+
+        // Actualizar en memoria
+        originalContent = mdContent;
+        files[currentPath] = new File([mdContent], fileName, { type: 'text/markdown' });
+        
+        updateEditStatus();
+        // Actualizar la visualización
+        content.innerHTML = marked.parse(mdContent);
+        wireLinks();
+        wireImages();
+        
+        editStatus.textContent = '✔ Guardado';
+        editStatus.style.color = '#34a853';
+        setTimeout(() => {
+          updateEditStatus();
+        }, 1500);
+      } catch (error) {
+        console.error('Error al guardar:', error);
+        alert('Error al guardar: ' + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Guardar';
+      }
+    }
+
+    // Event listeners para edición
+    document.addEventListener('keydown', (e) => {
+      if (isEditing && e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveFile();
+      }
+      if (isEditing && e.key === 'Escape') {
+        e.preventDefault();
+        if (editorTextarea.value !== originalContent) {
+          if (confirm('Descartar cambios?')) {
+            exitEditMode();
+          }
+        } else {
+          exitEditMode();
+        }
+      }
+    });
+
+    editorTextarea.addEventListener('input', updateEditStatus);
+
+    viewBtn.addEventListener('click', () => {
+      if (isEditing) {
+        if (editorTextarea.value !== originalContent) {
+          if (!confirm('Descartar cambios?')) return;
+        }
+        exitEditMode();
+      }
+    });
+
+    saveBtn.addEventListener('click', saveFile);
+
+    cancelBtn.addEventListener('click', () => {
+      if (editorTextarea.value !== originalContent) {
+        if (!confirm('Descartar cambios?')) return;
+      }
+      exitEditMode();
+    });
+
+    // Agregar botón de editar al hacer clic derecho o mediante un button
+    content.addEventListener('dblclick', () => {
+      if (currentPath && currentPath.endsWith('.md')) {
+        enterEditMode();
+      }
+    });
+
+    // Agregar botón de editar a la interfaz principal
+    const editBtnHeader = document.createElement('button');
+    editBtnHeader.id = 'editBtnHeader';
+    editBtnHeader.className = 'edit-btn';
+    editBtnHeader.title = 'Editar documento actual';
+    editBtnHeader.textContent = '✏️ Editar';
+    editBtnHeader.style.display = 'none';
+    editBtnHeader.addEventListener('click', enterEditMode);
+    
+    // Insertarlo después del botón de tema
+    toggleThemeBtn.parentNode.insertBefore(editBtnHeader, toggleThemeBtn.nextSibling);
 
     // Breadcrumbs
     function wireBreadcrumbs() {
@@ -944,7 +1639,7 @@ ${htmlContent}
         fileList.innerHTML = '';
         for (const path in files) {
           const li = document.createElement('li');
-          li.textContent = path.replace(/^.*?wiki\//, '');
+          li.textContent = path;
           li.onclick = () => openFile(path, li);
           fileList.appendChild(li);
         }
@@ -964,7 +1659,7 @@ ${htmlContent}
         const reader = new FileReader();
         reader.onload = () => {
           const content = reader.result.toLowerCase();
-          const fileName = path.replace(/^.*?wiki\//, '');
+          const fileName = path;
           
           if (fileName.toLowerCase().includes(termLower) || content.includes(termLower)) {
             // Extraer contexto

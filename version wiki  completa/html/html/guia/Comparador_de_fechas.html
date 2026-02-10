@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>guia/Comparador_de_fechas</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border-left: 3px solid #1a73e8;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      margin-top: 1.5em;
+      color: #202124;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+<h1>Métodos ComparadorDeFechas</h1>
+<h2>Métodos ComparadorDeFechas con cuatro parámetros</h2>
+<table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Parámetros</th>
+<th>Ejemplo 1</th>
+<th>Ejemplo 2</th>
+<th>Ejemplo 3 (Fechas iguales)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>esMayorQue</strong> (BigDecimal)</td>
+<td><code>BigDecimal fechaInicio, String formatoInicio, BigDecimal fechaFin, String formatoFin</code></td>
+<td><code>esMayorQue(new BigDecimal(&quot;15/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMayorQue(new BigDecimal(&quot;05/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+<td><code>esMayorQue(new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esMenorQue</strong> (BigDecimal)</td>
+<td><code>BigDecimal fechaInicio, String formatoInicio, BigDecimal fechaFin, String formatoFin</code></td>
+<td><code>esMenorQue(new BigDecimal(&quot;05/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMenorQue(new BigDecimal(&quot;15/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+<td><code>esMenorQue(new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esIgualQue</strong> (BigDecimal)</td>
+<td><code>BigDecimal fechaInicio, String formatoInicio, BigDecimal fechaFin, String formatoFin</code></td>
+<td><code>esIgualQue(new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esIgualQue(new BigDecimal(&quot;10/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;15/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+<td><code>esIgualQue(new BigDecimal(&quot;05/02/2025&quot;), &quot;dd/MM/yyyy&quot;, new BigDecimal(&quot;05/02/2025&quot;), &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+</tr>
+<tr>
+<td><strong>esMayorQue</strong> (String)</td>
+<td><code>String fechaInicio, String formatoInicio, String fechaFin, String formatoFin</code></td>
+<td><code>esMayorQue(&quot;15/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMayorQue(&quot;05/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+<td><code>esMayorQue(&quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esMayorOIgualQue</strong> (String)</td>
+<td><code>String fechaInicio, String formatoInicio, String fechaFin, String formatoFin</code></td>
+<td><code>esMayorOIgualQue(&quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMayorOIgualQue(&quot;15/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMayorOIgualQue(&quot;05/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;05/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+</tr>
+<tr>
+<td><strong>esMenorQue</strong> (String)</td>
+<td><code>String fechaInicio, String formatoInicio, String fechaFin, String formatoFin</code></td>
+<td><code>esMenorQue(&quot;05/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMenorQue(&quot;15/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+<td><code>esMenorQue(&quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esMenorOIgualQue</strong> (String)</td>
+<td><code>String fechaInicio, String formatoInicio, String fechaFin, String formatoFin</code></td>
+<td><code>esMenorOIgualQue(&quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMenorOIgualQue(&quot;05/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esMenorOIgualQue(&quot;15/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;15/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+</tr>
+<tr>
+<td><strong>esIgualQue</strong> (String)</td>
+<td><code>String fechaInicio, String formatoInicio, String fechaFin, String formatoFin</code></td>
+<td><code>esIgualQue(&quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+<td><code>esIgualQue(&quot;10/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;15/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>false</code></td>
+<td><code>esIgualQue(&quot;20/02/2025&quot;, &quot;dd/MM/yyyy&quot;, &quot;20/02/2025&quot;, &quot;dd/MM/yyyy&quot;)</code> → <code>true</code></td>
+</tr>
+<tr>
+<td><strong>esMayorQue</strong> (Timestamp)</td>
+<td><code>Timestamp fechaInicio, Timestamp fechaFin</code></td>
+<td><code>esMayorQue(Timestamp.valueOf(&quot;2025-02-15 10:30:00&quot;), Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;))</code> → <code>true</code></td>
+<td><code>esMayorQue(Timestamp.valueOf(&quot;2025-02-05 10:30:00&quot;), Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;))</code> → <code>false</code></td>
+<td><code>esMayorQue(Timestamp.valueOf(&quot;2025-02-10 14:45:00&quot;), Timestamp.valueOf(&quot;2025-02-10 09:15:00&quot;))</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esMenorQue</strong> (Timestamp)</td>
+<td><code>Timestamp fechaInicio, Timestamp fechaFin</code></td>
+<td><code>esMenorQue(Timestamp.valueOf(&quot;2025-02-05 10:30:00&quot;), Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;))</code> → <code>true</code></td>
+<td><code>esMenorQue(Timestamp.valueOf(&quot;2025-02-15 10:30:00&quot;), Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;))</code> → <code>false</code></td>
+<td><code>esMenorQue(Timestamp.valueOf(&quot;2025-02-10 08:20:00&quot;), Timestamp.valueOf(&quot;2025-02-10 16:50:00&quot;))</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esIgualQue</strong> (Timestamp)</td>
+<td><code>Timestamp fechaInicio, Timestamp fechaFin</code></td>
+<td><code>esIgualQue(Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;), Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;))</code> → <code>true</code></td>
+<td><code>esIgualQue(Timestamp.valueOf(&quot;2025-02-10 10:30:00&quot;), Timestamp.valueOf(&quot;2025-02-15 10:30:00&quot;))</code> → <code>false</code></td>
+<td><code>esIgualQue(Timestamp.valueOf(&quot;2025-02-15 08:00:00&quot;), Timestamp.valueOf(&quot;2025-02-15 22:30:00&quot;))</code> → <code>true</code></td>
+</tr>
+<tr>
+<td><strong>esMayorQue</strong> (Date)</td>
+<td><code>Date fechaInicio, Date fechaFin</code></td>
+<td><code>esMayorQue(Date.valueOf(&quot;2025-02-15&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>true</code></td>
+<td><code>esMayorQue(Date.valueOf(&quot;2025-02-05&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>false</code></td>
+<td><code>esMayorQue(Date.valueOf(&quot;2025-02-10&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esMenorQue</strong> (Date)</td>
+<td><code>Date fechaInicio, Date fechaFin</code></td>
+<td><code>esMenorQue(Date.valueOf(&quot;2025-02-05&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>true</code></td>
+<td><code>esMenorQue(Date.valueOf(&quot;2025-02-15&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>false</code></td>
+<td><code>esMenorQue(Date.valueOf(&quot;2025-02-10&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>false</code></td>
+</tr>
+<tr>
+<td><strong>esIgualQue</strong> (Date)</td>
+<td><code>Date fechaInicio, Date fechaFin</code></td>
+<td><code>esIgualQue(Date.valueOf(&quot;2025-02-10&quot;), Date.valueOf(&quot;2025-02-10&quot;))</code> → <code>true</code></td>
+<td><code>esIgualQue(Date.valueOf(&quot;2025-02-10&quot;), Date.valueOf(&quot;2025-02-15&quot;))</code> → <code>false</code></td>
+<td><code>esIgualQue(Date.valueOf(&quot;2025-02-20&quot;), Date.valueOf(&quot;2025-02-20&quot;))</code> → <code>true</code></td>
+</tr>
+</tbody></table>
+
+</body>
+</html>
