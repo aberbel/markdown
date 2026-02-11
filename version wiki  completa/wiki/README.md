@@ -13,3 +13,7 @@ Es un comparador y d un conversor de fechas en java.
 
 ![Logo ](img/prueba.png)
 
+![Logo ](img/wikipro.png)
+
+
+
