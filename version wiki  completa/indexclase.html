@@ -1,0 +1,1958 @@
+
+Familia Berbel <aberbel@gmail.com>
+11:08 (hace 4 horas)
+para mí
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki Portátil PRO</title>
+  <script src="marked.min.js"></script>
+  <link href="bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Estilos CSS (mantenidos igual) -->
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #111;
+      --sidebar-bg: #202124;
+      --sidebar-text: #e8eaed;
+      --link-color: #1a73e8;
+      --highlight: #555;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #e8eaed;
+      --sidebar-bg: #1e1e1e;
+      --sidebar-text: #e8eaed;
+      --link-color: #8ab4f8;
+      --highlight: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .wiki-container {
+      display: flex;
+      height: 100vh;
+      gap: 0;
+    }
+
+    #sidebar {
+      width: 300px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      padding: 15px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      border-right: 1px solid var(--highlight);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sidebar h2 {
+      font-size: 18px;
+      margin: 0 0 15px 0;
+      color: var(--sidebar-text);
+    }
+
+    #folderBtn {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    #folderBtn:hover {
+      background: #1557b0;
+    }
+
+    #search {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid var(--highlight);
+      border-radius: 4px;
+      background: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    #fileList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+      flex: 1;
+      overflow-y: auto;
+      border-radius: 4px;
+    }
+
+    #fileList li {
+      padding: 8px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      word-break: break-word;
+    }
+
+    #fileList li:hover {
+      background: var(--highlight);
+    }
+
+    #fileList li.active {
+      background: var(--link-color);
+      color: white;
+    }
+
+    #content-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    #breadcrumbs {
+      padding: 10px 20px;
+      font-size: 13px;
+      background: #f0f0f0;
+      border-bottom: 1px solid #ddd;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    [data-theme="dark"] #breadcrumbs {
+      background: #1c1c1c;
+      border-bottom-color: #333;
+    }
+
+    #breadcrumbs a {
+      color: var(--link-color);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    #content {
+      flex: 1;
+      padding: 20px 30px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-wrap: break-word;
+    }
+
+    #content p {
+      margin: 0 0 1em 0;
+    }
+
+    #content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    #content h1 {
+      font-size: 2em;
+      border-bottom: 2px solid var(--link-color);
+      padding-bottom: 0.3em;
+    }
+
+    pre {
+      background: #f0f0f0;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border-left: 3px solid var(--link-color);
+      margin: 1em 0;
+    }
+
+    [data-theme="dark"] pre {
+      background: #222;
+    }
+
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.9em;
+    }
+
+    [data-theme="dark"] code {
+      background: #333;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      cursor: zoom-in;
+      transition: transform 0.2s;
+      display: block;
+      border-radius: 4px;
+      margin: 1em 0;
+    }
+
+    img.zoomed {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(2);
+      z-index: 999;
+      cursor: zoom-out;
+      max-width: none;
+      max-height: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      border-radius: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+      background: var(--bg-color);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    [data-theme="dark"] th,
+    [data-theme="dark"] td {
+      border-color: #444;
+    }
+
+    th {
+      background: #f4f4f4;
+      font-weight: bold;
+    }
+
+    [data-theme="dark"] th {
+      background: #222;
+    }
+
+    #top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 8px 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+
+    #exportBtn {
+      background: #1a73e8;
+      color: white;
+    }
+
+    #exportBtn:hover {
+      background: #1557b0;
+    }
+
+    #exportBtn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    #exportPdfBtn {
+      background: #188038;
+      color: white;
+    }
+
+    #exportPdfBtn:hover {
+      background: #0f5f28;
+    }
+
+    #exportPdfBtn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    #pdfOrientation {
+      padding: 6px 10px;
+      border: 1px solid var(--highlight);
+      border-radius: 4px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-size: 13px;
+    }
+
+    #toggleTheme {
+      background: var(--highlight);
+      color: var(--sidebar-text);
+      padding: 6px 10px;
+    }
+
+    #toggleTheme:hover {
+      background: #666;
+    }
+
+    #editBtnHeader {
+      background: #1a73e8;
+      color: white;
+    }
+
+    #editBtnHeader:hover {
+      background: #1557b0;
+    }
+
+    .highlight {
+      background-color: yellow;
+      color: black;
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    [data-theme="dark"] .highlight {
+      background-color: #ffd700;
+      color: black;
+    }
+
+    #pdfModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #pdfModal.show {
+      display: flex;
+    }
+
+    #pdfModalContent {
+      background: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    #pdfModalContent h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    #pdfFileList {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid var(--highlight);
+      border-radius: 4px;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .pdf-file-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      margin: 4px 0;
+      background: var(--bg-color);
+      border: 1px solid var(--highlight);
+      border-radius: 4px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pdf-file-item input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .pdf-file-item span {
+      flex: 1;
+      font-size: 13px;
+      min-width: 150px;
+    }
+
+    .pdf-file-item button {
+      padding: 4px 8px;
+      font-size: 12px;
+      margin: 0 2px;
+      background: #1a73e8;
+      color: white;
+    }
+
+    .pdf-file-item button:hover {
+      background: #1557b0;
+    }
+
+    .pdf-file-item button:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    #pdfModalButtons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    #pdfModalButtons button {
+      padding: 8px 16px;
+    }
+
+    #pdfSelectAll, #pdfCancel {
+      background: #5f6368;
+      color: white;
+    }
+
+    #pdfSelectAll:hover, #pdfCancel:hover {
+      background: #3c4043;
+    }
+
+    #pdfConfirm {
+      background: #188038;
+      color: white;
+    }
+
+    #pdfConfirm:hover {
+      background: #0f5f28;
+    }
+
+    #editor-container {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    #editor-container.active {
+      display: flex;
+    }
+
+    #content.edit-mode {
+      display: none;
+    }
+
+    #editor-toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 12px 20px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ddd;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    [data-theme="dark"] #editor-toolbar {
+      background: #1c1c1c;
+      border-bottom-color: #333;
+    }
+
+    .view-btn, .save-btn, .cancel-btn, .edit-btn {
+      background: #1a73e8;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+    }
+
+    .save-btn {
+      background: #188038;
+    }
+
+    .save-btn:hover {
+      background: #0f5f28;
+    }
+
+    .save-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    .cancel-btn {
+      background: #5f6368;
+    }
+
+    .cancel-btn:hover {
+      background: #3c4043;
+    }
+
+    .view-btn:hover, .edit-btn:hover {
+      background: #1557b0;
+    }
+
+    #edit-status {
+      margin-left: auto;
+      font-size: 12px;
+    }
+
+    #editor-textarea {
+      flex: 1;
+      padding: 16px 20px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      border: none;
+      background: var(--bg-color);
+      color: var(--text-color);
+      outline: none;
+      overflow-y: auto;
+      overflow-x: auto;
+      word-wrap: break-word;
+    }
+
+    #editor-textarea::placeholder {
+      color: #999;
+    }
+
+    .file-modified::before {
+      content: '● ';
+      color: #ff6b6b;
+      margin-right: 5px;
+    }
+
+    /* Responsive design para tablets y móviles */
+    @media (max-width: 768px) {
+      .wiki-container {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        max-height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid var(--highlight);
+        order: -1;
+      }
+
+      #sidebar h2 {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      #top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #top-bar h2 {
+        margin: 0;
+      }
+
+      #controls {
+        width: 100%;
+      }
+
+      #folderBtn {
+        margin-bottom: 8px;
+      }
+
+      #search {
+        margin-bottom: 8px;
+      }
+
+      #fileList {
+        max-height: 150px;
+      }
+
+      #content-wrapper {
+        flex: 1;
+        min-height: 0;
+      }
+
+      #content {
+        padding: 15px 20px;
+        font-size: 14px;
+      }
+
+      #breadcrumbs {
+        padding: 8px 15px;
+        font-size: 12px;
+      }
+
+      #editor-toolbar {
+        padding: 10px 15px;
+        gap: 8px;
+      }
+
+      button {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      #pdfModalContent {
+        max-width: 90%;
+        max-height: 70vh;
+        padding: 15px;
+      }
+
+      #editor-textarea {
+        padding: 12px 15px;
+        font-size: 13px;
+      }
+
+      #content h1 {
+        font-size: 1.5em;
+      }
+
+      img {
+        margin: 0.5em 0;
+      }
+    }
+
+    /* Responsive design para móviles pequeños */
+    @media (max-width: 480px) {
+      #sidebar {
+        max-height: 35vh;
+      }
+
+      #fileList {
+        max-height: 100px;
+        font-size: 12px;
+      }
+
+      #fileList li {
+        padding: 6px 8px;
+      }
+
+      #content {
+        padding: 12px 15px;
+        font-size: 13px;
+      }
+
+      #breadcrumbs {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      #top-bar h2 {
+        font-size: 14px;
+      }
+
+      button {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+
+      #controls {
+        gap: 4px;
+      }
+
+      #exportBtn, #exportPdfBtn {
+        flex: 1;
+        min-width: 60px;
+      }
+
+      #pdfOrientation {
+        padding: 4px 6px;
+        font-size: 11px;
+      }
+
+      #toggleTheme {
+        padding: 6px;
+      }
+
+      #editor-toolbar {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .view-btn, .save-btn, .cancel-btn, .edit-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+
+      #edit-status {
+        font-size: 10px;
+        margin-left: auto;
+      }
+
+      #editor-textarea {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      #pdfModalContent {
+        padding: 12px;
+      }
+
+      #pdfFileList {
+        padding: 8px;
+      }
+
+      .pdf-file-item {
+        padding: 6px;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .pdf-file-item button {
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+
+      #pdfModalButtons {
+        gap: 6px;
+      }
+
+      #pdfModalButtons button {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 6px 8px;
+      }
+
+      pre {
+        padding: 10px;
+        font-size: 11px;
+      }
+
+      code {
+        font-size: 0.85em;
+      }
+
+      #content h1, #content h2, #content h3 {
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+      }
+
+      #content h1 {
+        font-size: 1.4em;
+      }
+
+      #content h2 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+  <script src="bootstrap.bundle.min.js"></script>
+</head>
+<body data-theme="light" class="m-0 p-0">
+
+  <div class="wiki-container">
+    <div id="sidebar">
+      <div id="top-bar">
+        <h2>📚 Wiki PRO</h2>
+        <div id="controls">
+          <button id="exportBtn" class="btn btn-info btn-sm" title="Exportar HTML">📥 HTML</button>
+          <select id="pdfOrientation" class="form-select form-select-sm" title="Orientacion PDF" style="max-width: 80px;">
+            <option value="portrait" selected>Vertical</option>
+            <option value="landscape">Horizontal</option>
+          </select>
+          <button id="exportPdfBtn" class="btn btn-success btn-sm" title="Exportar PDF">🧾 PDF</button>
+          <button id="toggleTheme" class="btn btn-secondary btn-sm" title="Cambiar tema">🌙</button>
+        </div>
+      </div>
+      <button id="folderBtn">📁 Seleccionar carpeta</button>
+      <input type="text" id="search" class="form-control form-control-sm" placeholder="Buscar títulos o contenido…">
+      <ul id="fileList"></ul>
+    </div>
+
+    <div id="content-wrapper">
+      <div id="breadcrumbs">Selecciona una carpeta para empezar</div>
+      <div id="editor-container">
+        <div id="editor-toolbar">
+          <button id="viewBtn" class="view-btn btn btn-sm" title="Ver documento (Esc)">👁️ Ver</button>
+          <button id="saveBtn" class="save-btn btn btn-sm" title="Guardar cambios (Ctrl+S)" disabled>💾 Guardar</button>
+          <button id="cancelBtn" class="cancel-btn btn btn-sm" title="Descartar cambios">✕ Cancelar</button>
+          <span id="edit-status"></span>
+        </div>
+        <textarea id="editor-textarea" placeholder="Escriba aquí..."></textarea>
+      </div>
+      <div id="content">
+        <p>Selecciona una carpeta para empezar</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdfModal">
+    <div id="pdfModalContent">
+      <h3>Seleccionar archivos para PDF</h3>
+      <div id="pdfFileList"></div>
+      <div id="pdfModalButtons">
+        <button id="pdfSelectAll" class="btn btn-secondary btn-sm">Seleccionar todos</button>
+        <button id="pdfCancel" class="btn btn-secondary btn-sm">Cancelar</button>
+        <button id="pdfConfirm" class="btn btn-success btn-sm">Generar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // CLASE: FileManager - Gestión de archivos
+    // ============================================
+    class FileManager {
+      constructor() {
+        this.files = {};      // archivos .md
+        this.allFiles = {};   // todos los archivos
+        this.dirHandle = null;
+        this.rootFolder = '';
+      }
+
+      async loadFolder() {
+        if (!('showDirectoryPicker' in window)) {
+          alert('Tu navegador no soporta esta función. Usa Chrome o Edge.');
+          return false;
+        }
+
+        try {
+          this.dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+          this.files = {};
+          this.allFiles = {};
+          
+          await this.readDirectory(this.dirHandle, '');
+          this.rootFolder = this.dirHandle.name + '/';
+          
+          return true;
+        } catch (e) {
+          if (e.name !== 'AbortError') {
+            console.error('Error al cargar carpeta:', e);
+          }
+          return false;
+        }
+      }
+
+      async readDirectory(dirHandle, path) {
+        for await (const entry of dirHandle.values()) {
+          const entryPath = path ? `${path}/${entry.name}` : entry.name;
+          
+          if (entry.kind === 'file') {
+            const file = await entry.getFile();
+            this.allFiles[entryPath] = file;
+            if (file.name.endsWith('.md')) {
+              this.files[entryPath] = file;
+            }
+          } else if (entry.kind === 'directory') {
+            await this.readDirectory(entry, entryPath);
+          }
+        }
+      }
+
+      getMarkdownFiles() {
+        return this.files;
+      }
+
+      getAllFiles() {
+        return this.allFiles;
+      }
+
+      getFile(path) {
+        return this.files[path] || null;
+      }
+
+      async saveFile(path, content) {
+        if (!this.dirHandle) {
+          throw new Error('No hay permisos de escritura');
+        }
+
+        const parts = path.split('/');
+        let currentDir = this.dirHandle;
+
+        for (let i = 0; i < parts.length - 1; i++) {
+          currentDir = await currentDir.getDirectoryHandle(parts[i]);
+        }
+
+        const fileName = parts[parts.length - 1];
+        const fileHandle = await currentDir.getFileHandle(fileName);
+        const writable = await fileHandle.createWritable();
+        await writable.write(content);
+        await writable.close();
+
+        // Actualizar en memoria
+        this.files[path] = new File([content], fileName, { type: 'text/markdown' });
+      }
+
+      resolvePath(base, relative) {
+        const stack = base.split('/').slice(0, -1);
+        for (const part of relative.split('/')) {
+          if (part === '.' || part === '') continue;
+          if (part === '..') stack.pop();
+          else stack.push(part);
+        }
+        return stack.join('/');
+      }
+    }
+
+    // ============================================
+    // CLASE: MarkdownRenderer - Renderizado MD
+    // ============================================
+    class MarkdownRenderer {
+      constructor(fileManager) {
+        this.fileManager = fileManager;
+        this.contentElement = document.getElementById('content');
+        this.breadcrumbsElement = document.getElementById('breadcrumbs');
+        this.currentPath = null;
+      }
+
+      async renderFile(path) {
+        const file = this.fileManager.getFile(path);
+        if (!file) {
+          console.error('Archivo no encontrado:', path);
+          return null;
+        }
+
+        this.currentPath = path;
+        const content = await this.readFileAsText(file);
+        const html = marked.parse(content);
+        
+        this.contentElement.innerHTML = html;
+        this.wireLinks();
+        this.wireImages();
+        this.wireBreadcrumbs();
+
+        return content;
+      }
+
+      readFileAsText(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsText(file);
+        });
+      }
+
+      wireLinks() {
+        this.contentElement.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (!href || href.startsWith('http')) return;
+          
+          link.onclick = e => {
+            e.preventDefault();
+            const resolved = this.fileManager.resolvePath(this.currentPath, href);
+            if (this.fileManager.getFile(resolved)) {
+              window.wikiApp.openFile(resolved);
+            } else {
+              alert('Página no encontrada: ' + href);
+            }
+          };
+        });
+      }
+
+      wireImages() {
+        this.contentElement.querySelectorAll('img').forEach(img => {
+          const src = img.getAttribute('src');
+          if (!src || src.startsWith('http') || src.startsWith('data:')) return;
+          
+          const file = this.findImageFile(src, this.currentPath);
+          
+          if (file) {
+            img.src = URL.createObjectURL(file);
+            img.onclick = () => img.classList.toggle('zoomed');
+          } else {
+            console.warn('Imagen no encontrada:', src, 'Desde:', this.currentPath);
+            img.alt += ' (imagen no encontrada)';
+          }
+        });
+      }
+
+      findImageFile(src, basePath) {
+        const allFiles = this.fileManager.getAllFiles();
+        let resolved = this.fileManager.resolvePath(basePath, src);
+        let file = allFiles[resolved];
+        
+        if (!file) {
+          for (const key in allFiles) {
+            if (key.endsWith('/' + src) || key === src) {
+              file = allFiles[key];
+              break;
+            }
+          }
+        }
+        
+        if (!file) {
+          const srcName = src.split('/').pop();
+          for (const key in allFiles) {
+            if ((key.includes('/img/') || key.includes('/images/')) && key.endsWith('/' + srcName)) {
+              file = allFiles[key];
+              break;
+            }
+          }
+        }
+        
+        return file;
+      }
+
+      wireBreadcrumbs() {
+        if (!this.currentPath) return;
+        
+        const parts = this.currentPath.split('/');
+        let crumbs = [];
+        
+        for (let i = 0; i < parts.length; i++) {
+          const name = parts[i];
+          const subpath = parts.slice(0, i + 1).join('/');
+          crumbs.push(`<a href="#" data-path="${subpath}">${name}</a>`);
+        }
+        
+        this.breadcrumbsElement.innerHTML = crumbs.join(' / ');
+        
+        this.breadcrumbsElement.querySelectorAll('a').forEach(a => {
+          a.onclick = e => {
+            e.preventDefault();
+            const path = a.getAttribute('data-path');
+            if (this.fileManager.getFile(path)) {
+              window.wikiApp.openFile(path);
+            }
+          };
+        });
+      }
+
+      highlightInContent(term) {
+        const walker = document.createTreeWalker(
+          this.contentElement,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+        
+        const nodesToReplace = [];
+        let node;
+        
+        while (node = walker.nextNode()) {
+          if (node.nodeValue.toLowerCase().includes(term.toLowerCase())) {
+            nodesToReplace.push(node);
+          }
+        }
+        
+        nodesToReplace.forEach(node => {
+          const span = document.createElement('span');
+          span.innerHTML = this.highlightText(node.nodeValue, term);
+          node.parentNode.replaceChild(span, node);
+        });
+      }
+
+      highlightText(text, term) {
+        const regex = new RegExp(`(${term})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+      }
+    }
+
+    // ============================================
+    // CLASE: MarkdownEditor - Editor de archivos
+    // ============================================
+    class MarkdownEditor {
+      constructor(fileManager, renderer) {
+        this.fileManager = fileManager;
+        this.renderer = renderer;
+        this.editorContainer = document.getElementById('editor-container');
+        this.editorTextarea = document.getElementById('editor-textarea');
+        this.contentElement = document.getElementById('content');
+        this.editStatus = document.getElementById('edit-status');
+        this.saveBtn = document.getElementById('saveBtn');
+        this.viewBtn = document.getElementById('viewBtn');
+        this.cancelBtn = document.getElementById('cancelBtn');
+        
+        this.isEditing = false;
+        this.originalContent = '';
+        this.currentPath = null;
+
+        this.initEventListeners();
+      }
+
+      initEventListeners() {
+        this.editorTextarea.addEventListener('input', () => this.updateEditStatus());
+        
+        this.viewBtn.addEventListener('click', () => {
+          if (this.isEditing) {
+            if (this.editorTextarea.value !== this.originalContent) {
+              if (!confirm('Descartar cambios?')) return;
+            }
+            this.exitEditMode();
+          }
+        });
+
+        this.saveBtn.addEventListener('click', () => this.saveFile());
+        
+        this.cancelBtn.addEventListener('click', () => {
+          if (this.editorTextarea.value !== this.originalContent) {
+            if (!confirm('Descartar cambios?')) return;
+          }
+          this.exitEditMode();
+        });
+
+        this.contentElement.addEventListener('dblclick', () => {
+          if (this.currentPath && this.currentPath.endsWith('.md')) {
+            this.enterEditMode();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (this.isEditing && e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            this.saveFile();
+          }
+          if (this.isEditing && e.key === 'Escape') {
+            e.preventDefault();
+            if (this.editorTextarea.value !== this.originalContent) {
+              if (confirm('Descartar cambios?')) {
+                this.exitEditMode();
+              }
+            } else {
+              this.exitEditMode();
+            }
+          }
+        });
+      }
+
+      setCurrentPath(path) {
+        this.currentPath = path;
+      }
+
+      setOriginalContent(content) {
+        this.originalContent = content;
+        this.editorTextarea.value = content;
+      }
+
+      enterEditMode() {
+        if (this.isEditing) return;
+        
+        this.isEditing = true;
+        this.editorContainer.classList.add('active');
+        this.contentElement.classList.add('edit-mode');
+        this.editorTextarea.focus();
+        this.updateEditStatus();
+      }
+
+      exitEditMode() {
+        this.isEditing = false;
+        this.editorContainer.classList.remove('active');
+        this.contentElement.classList.remove('edit-mode');
+        this.updateEditStatus();
+      }
+
+      updateEditStatus() {
+        if (!this.isEditing) {
+          this.editStatus.textContent = '';
+          return;
+        }
+        
+        const hasChanges = this.editorTextarea.value !== this.originalContent;
+        this.editStatus.textContent = hasChanges ? '● Cambios sin guardar' : '✔ Guardado';
+        this.editStatus.style.color = hasChanges ? '#ff6b6b' : '#34a853';
+        this.saveBtn.disabled = !hasChanges;
+      }
+
+      async saveFile() {
+        if (!this.currentPath) {
+          alert('Por favor, abre un documento primero');
+          return;
+        }
+
+        this.saveBtn.disabled = true;
+        this.saveBtn.textContent = '💾 Guardando...';
+
+        try {
+          const mdContent = this.editorTextarea.value;
+          await this.fileManager.saveFile(this.currentPath, mdContent);
+          
+          this.originalContent = mdContent;
+          this.updateEditStatus();
+          
+          // Actualizar la visualización
+          this.contentElement.innerHTML = marked.parse(mdContent);
+          this.renderer.wireLinks();
+          this.renderer.wireImages();
+          
+          this.editStatus.textContent = '✔ Guardado';
+          this.editStatus.style.color = '#34a853';
+          
+          setTimeout(() => {
+            this.updateEditStatus();
+          }, 1500);
+        } catch (error) {
+          console.error('Error al guardar:', error);
+          alert('Error al guardar: ' + error.message);
+        } finally {
+          this.saveBtn.disabled = false;
+          this.saveBtn.textContent = '💾 Guardar';
+        }
+      }
+
+      hasUnsavedChanges() {
+        return this.isEditing && this.editorTextarea.value !== this.originalContent;
+      }
+    }
+
+    // ============================================
+    // CLASE: HTMLExporter - Exportación a HTML
+    // ============================================
+    class HTMLExporter {
+      constructor(fileManager) {
+        this.fileManager = fileManager;
+        this.exportBtn = document.getElementById('exportBtn');
+        this.initEventListeners();
+      }
+
+      initEventListeners() {
+        this.exportBtn.addEventListener('click', () => this.exportHTML());
+      }
+
+      async exportHTML() {
+        const files = this.fileManager.getMarkdownFiles();
+        
+        if (Object.keys(files).length === 0) {
+          alert('Carga una carpeta primero');
+          return;
+        }
+
+        this.exportBtn.disabled = true;
+        this.exportBtn.textContent = '⏳ Exportando...';
+
+        try {
+          if ('showDirectoryPicker' in window) {
+            const dirHandle = await window.showDirectoryPicker();
+            let count = 0;
+
+            for (const path in files) {
+              const mdFile = files[path];
+              const relativePath = path.replace(new RegExp(`^.*?${this.fileManager.rootFolder.replace(/\//g, '\\/')}`), '');
+              const htmlPath = relativePath.replace(/\.md$/, '.html');
+
+              const reader = new FileReader();
+              const markdownContent = await new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result);
+                reader.readAsText(mdFile);
+              });
+
+              let htmlContent = marked.parse(markdownContent);
+              
+              htmlContent = htmlContent.replace(/href="([^"]+)\.md"/g, 'href="$1.html"');
+              htmlContent = htmlContent.replace(/href="\.\.?\/([^"]+)\.md"/g, (match, p1) => {
+                return `href="${p1}.html"`;
+              });
+
+              const fullHtml = this.generateHTMLTemplate(relativePath, htmlContent);
+
+              const parts = htmlPath.split('/');
+              let currentDir = dirHandle;
+              for (let i = 0; i < parts.length - 1; i++) {
+                currentDir = await currentDir.getDirectoryHandle(parts[i], { create: true });
+              }
+
+              const fileHandle = await currentDir.getFileHandle(parts[parts.length - 1], { create: true });
+              const writable = await fileHandle.createWritable();
+              await writable.write(fullHtml);
+              await writable.close();
+              count++;
+            }
+
+            // Incluir imágenes y otros recursos
+            const allFiles = this.fileManager.getAllFiles();
+            for (const path in allFiles) {
+              const file = allFiles[path];
+              if (!path.endsWith('.md')) {
+                const relativePath = path.replace(new RegExp(`^.*?${this.fileManager.rootFolder.replace(/\//g, '\\/')}`), '');
+                const parts = relativePath.split('/');
+                let currentDir = dirHandle;
+                for (let i = 0; i < parts.length - 1; i++) {
+                  currentDir = await currentDir.getDirectoryHandle(parts[i], { create: true });
+                }
+
+                const fileHandle = await currentDir.getFileHandle(parts[parts.length - 1], { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(file);
+                await writable.close();
+              }
+            }
+
+            alert(`✅ Exportación completa: ${count} documentos HTML guardados en la carpeta seleccionada`);
+          } else {
+            alert('❌ Tu navegador no soporta la exportación de carpetas. Usa Chrome o Edge.');
+          }
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            // Usuario canceló
+          } else {
+            alert('Error al exportar: ' + error.message);
+          }
+        } finally {
+          this.exportBtn.disabled = false;
+          this.exportBtn.textContent = '📥 HTML';
+        }
+      }
+
+      generateHTMLTemplate(title, content) {
+        return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title.replace('.md', '')}</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border-left: 3px solid #1a73e8;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      margin-top: 1.5em;
+      color: #202124;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+      }
+    }
+
+    // ============================================
+    // CLASE: PDFExporter - Exportación a PDF
+    // ============================================
+    class PDFExporter {
+      constructor(fileManager) {
+        this.fileManager = fileManager;
+        this.exportPdfBtn = document.getElementById('exportPdfBtn');
+        this.pdfOrientationSelect = document.getElementById('pdfOrientation');
+        this.pdfModal = document.getElementById('pdfModal');
+        this.pdfFileList = document.getElementById('pdfFileList');
+        this.pdfSelectAll = document.getElementById('pdfSelectAll');
+        this.pdfCancel = document.getElementById('pdfCancel');
+        this.pdfConfirm = document.getElementById('pdfConfirm');
+        this.pdfOrderedFiles = [];
+
+        this.initEventListeners();
+      }
+
+      initEventListeners() {
+        this.exportPdfBtn.addEventListener('click', () => this.showModal());
+        this.pdfSelectAll.addEventListener('click', () => this.toggleSelectAll());
+        this.pdfCancel.addEventListener('click', () => this.hideModal());
+        this.pdfConfirm.addEventListener('click', () => this.generatePDF());
+      }
+
+      showModal() {
+        const files = this.fileManager.getMarkdownFiles();
+        
+        if (Object.keys(files).length === 0) {
+          alert('Carga una carpeta primero');
+          return;
+        }
+
+        this.pdfOrderedFiles = Object.keys(files).sort();
+        this.renderFileList();
+        this.pdfModal.classList.add('show');
+      }
+
+      hideModal() {
+        this.pdfModal.classList.remove('show');
+      }
+
+      renderFileList() {
+        this.pdfFileList.innerHTML = '';
+        
+        this.pdfOrderedFiles.forEach((path, index) => {
+          const div = document.createElement('div');
+          div.className = 'pdf-file-item';
+          div.innerHTML = `
+            <input type="checkbox" checked data-path="${path}">
+            <span>${path.replace(new RegExp(`^.*?${this.fileManager.rootFolder.replace(/\//g, '\\/')}`), '')}</span>
+            <button onclick="window.pdfExporter.moveFile(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+            <button onclick="window.pdfExporter.moveFile(${index}, 1)" ${index === this.pdfOrderedFiles.length - 1 ? 'disabled' : ''}>↓</button>
+          `;
+          this.pdfFileList.appendChild(div);
+        });
+      }
+
+      moveFile(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= this.pdfOrderedFiles.length) return;
+        
+        [this.pdfOrderedFiles[index], this.pdfOrderedFiles[newIndex]] = 
+        [this.pdfOrderedFiles[newIndex], this.pdfOrderedFiles[index]];
+        
+        this.renderFileList();
+      }
+
+      toggleSelectAll() {
+        const checkboxes = this.pdfFileList.querySelectorAll('input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        checkboxes.forEach(cb => cb.checked = !allChecked);
+        this.pdfSelectAll.textContent = allChecked ? 'Seleccionar todos' : 'Deseleccionar todos';
+      }
+
+      async generatePDF() {
+        this.hideModal();
+        this.exportPdfBtn.disabled = true;
+        this.exportPdfBtn.textContent = '⏳ PDF...';
+
+        try {
+          const orientation = this.pdfOrientationSelect.value || 'portrait';
+          const selectedPaths = Array.from(this.pdfFileList.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(cb => cb.getAttribute('data-path'));
+          
+          if (selectedPaths.length === 0) {
+            alert('Selecciona al menos un documento');
+            this.exportPdfBtn.disabled = false;
+            this.exportPdfBtn.textContent = '🧾 PDF';
+            return;
+          }
+
+          const sections = [];
+          const files = this.fileManager.getMarkdownFiles();
+
+          for (const path of selectedPaths) {
+            const markdownContent = await this.readFileAsText(files[path]);
+            let htmlContent = marked.parse(markdownContent);
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            
+            const imgPromises = Array.from(doc.querySelectorAll('img')).map(async img => {
+              const src = img.getAttribute('src');
+              if (!src || src.startsWith('http') || src.startsWith('data:')) return;
+              
+              const file = this.findImageFile(src, path);
+              
+              if (file) {
+                if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
+                  const svgText = await this.readFileAsText(file);
+                  const tempDiv = document.createElement('div');
+                  tempDiv.innerHTML = svgText.trim();
+                  const svgElement = tempDiv.querySelector('svg');
+                  
+                  if (svgElement) {
+                    if (!svgElement.hasAttribute('width')) svgElement.setAttribute('width', '100%');
+                    if (!svgElement.hasAttribute('height')) svgElement.setAttribute('height', 'auto');
+                    svgElement.style.maxWidth = '100%';
+                    svgElement.style.height = 'auto';
+                    svgElement.style.display = 'block';
+                    svgElement.style.borderRadius = '4px';
+                    svgElement.style.margin = '1em 0';
+                    
+                    img.parentNode.replaceChild(svgElement, img);
+                  }
+                } else {
+                  const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsDataURL(file);
+                  });
+                  img.src = dataUrl;
+                  img.style.maxWidth = '100%';
+                  img.style.height = 'auto';
+                  img.style.display = 'block';
+                  img.style.borderRadius = '4px';
+                  img.style.margin = '1em 0';
+                  img.style.pageBreakInside = 'avoid';
+                }
+              }
+            });
+            
+            await Promise.all(imgPromises);
+            
+            htmlContent = doc.body.innerHTML;
+            sections.push(`<article>\n${htmlContent}\n</article>`);
+          }
+
+          const printWindow = window.open('', '_blank');
+          if (!printWindow) {
+            alert('Tu navegador bloqueó la ventana de impresión');
+            return;
+          }
+
+          printWindow.document.open();
+          printWindow.document.write(this.generatePDFTemplate(orientation, sections));
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
+        } catch (error) {
+          alert('Error al exportar PDF: ' + error.message);
+        } finally {
+          this.exportPdfBtn.disabled = false;
+          this.exportPdfBtn.textContent = '🧾 PDF';
+        }
+      }
+
+      findImageFile(src, basePath) {
+        const allFiles = this.fileManager.getAllFiles();
+        let resolved = this.fileManager.resolvePath(basePath, src);
+        let file = allFiles[resolved];
+        
+        if (!file) {
+          for (const key in allFiles) {
+            if (key.endsWith('/' + src) || key === src) {
+              file = allFiles[key];
+              resolved = key;
+              break;
+            }
+          }
+        }
+        
+        if (!file) {
+          const srcName = src.split('/').pop();
+          for (const key in allFiles) {
+            if ((key.includes('/img/') || key.includes('/images/')) && key.endsWith('/' + srcName)) {
+              file = allFiles[key];
+              resolved = key;
+              break;
+            }
+          }
+        }
+        
+        return file;
+      }
+
+      readFileAsText(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsText(file);
+        });
+      }
+
+      generatePDFTemplate(orientation, sections) {
+        return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki PDF</title>
+  <style>
+    @page {
+      size: A4 ${orientation};
+      margin: 15mm 15mm 12mm 15mm;
+    }
+    @page {
+      @bottom-center {
+        content: counter(page) " / " counter(pages);
+        font-size: 10pt;
+        color: #666;
+      }
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 100%;
+      margin: 0;
+      padding: 8mm 8mm 8mm 8mm;
+      line-height: 1.6;
+      color: #333;
+      font-size: 11pt;
+    }
+    article {
+      page-break-before: always;
+    }
+    article:first-of-type {
+      page-break-before: auto;
+    }
+    img, svg {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+      margin: 1em 0;
+      background: white;
+      padding: 0;
+    }
+    img[src$=".svg"], img[src*="svg"], svg {
+      width: 100%;
+      height: auto;
+    }
+    img[src*="data:image"] {
+      max-width: 100%;
+      height: auto;
+      background: white;
+      page-break-inside: avoid;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border-left: 3px solid #1a73e8;
+      page-break-inside: avoid;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      margin-top: 1.5em;
+      color: #202124;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+      table-layout: fixed;
+      word-wrap: break-word;
+      border: 1px solid #ddd;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      font-size: 10pt;
+    }
+    th {
+      background: #f4f4f4;
+      font-weight: bold;
+      border-bottom: 2px solid #999;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+    tbody tr:last-child td {
+      border-bottom: 1px solid #ddd;
+    }
+    @media print {
+      body {
+        max-width: none;
+      }
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+      img, svg {
+        max-width: 100%;
+        height: auto;
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        display: block;
+      }
+      img[src*="data:image"] {
+        max-width: 100%;
+        height: auto;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      table {
+        page-break-inside: avoid;
+        font-size: 9pt;
+        border: 1px solid #ddd;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
+      thead {
+        display: table-header-group;
+      }
+      tfoot {
+        display: table-footer-group;
+      }
+      th, td {
+        padding: 4px 6px;
+        border: 1px solid #ddd;
+      }
+    }
+  </style>
+</head>
+<body>
+  ${sections.join('\n')}
+</body>
+</html>`;
+      }
+    }
+
+    // ============================================
+    // CLASE: WikiApp - Aplicación principal
+    // ============================================
+    class WikiApp {
+      constructor() {
+        this.fileManager = new FileManager();
+        this.renderer = new MarkdownRenderer(this.fileManager);
+        this.editor = new MarkdownEditor(this.fileManager, this.renderer);
+        this.htmlExporter = new HTMLExporter(this.fileManager);
+        this.pdfExporter = new PDFExporter(this.fileManager);
+        
+        this.fileListElement = document.getElementById('fileList');
+        this.searchInput = document.getElementById('search');
+        this.folderBtn = document.getElementById('folderBtn');
+        this.toggleThemeBtn = document.getElementById('toggleTheme');
+        this.breadcrumbsElement = document.getElementById('breadcrumbs');
+        this.contentElement = document.getElementById('content');
+        
+        this.lastSearchTerm = '';
+        this.searchTimeout = null;
+
+        this.initEventListeners();
+      }
+
+      initEventListeners() {
+        this.folderBtn.addEventListener('click', () => this.loadFolder());
+        this.toggleThemeBtn.addEventListener('click', () => this.toggleTheme());
+        this.searchInput.addEventListener('input', () => this.handleSearch());
+      }
+
+      toggleTheme() {
+        const theme = document.body.getAttribute('data-theme');
+        document.body.setAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
+        this.toggleThemeBtn.textContent = theme === 'light' ? '☀️' : '🌙';
+      }
+
+      async loadFolder() {
+        const success = await this.fileManager.loadFolder();
+        
+        if (success) {
+          this.fileListElement.innerHTML = '';
+          this.searchInput.value = '';
+          this.contentElement.innerHTML = '<p>Cargando archivos…</p>';
+          this.breadcrumbsElement.textContent = '';
+
+          const files = this.fileManager.getMarkdownFiles();
+          
+          for (const path in files) {
+            const li = document.createElement('li');
+            li.textContent = path;
+            li.onclick = () => this.openFile(path, li);
+            this.fileListElement.appendChild(li);
+          }
+
+          const readme = Object.keys(files).find(p => p.endsWith('README.md'));
+          if (readme) {
+            this.openFile(readme);
+          } else {
+            this.contentElement.innerHTML = '<p>Selecciona un documento de la lista</p>';
+          }
+        }
+      }
+
+      async openFile(path, li = null) {
+        if (this.editor.hasUnsavedChanges()) {
+          if (!confirm('Hay cambios sin guardar. ¿Descartar?')) {
+            return;
+          }
+        }
+
+        document.querySelectorAll('#fileList li').forEach(el => el.classList.remove('active'));
+        if (li) li.classList.add('active');
+
+        const content = await this.renderer.renderFile(path);
+        
+        if (content) {
+          this.editor.setCurrentPath(path);
+          this.editor.setOriginalContent(content);
+          this.editor.exitEditMode();
+          
+          if (this.lastSearchTerm) {
+            this.renderer.highlightInContent(this.lastSearchTerm);
+          }
+        }
+      }
+
+      handleSearch() {
+        clearTimeout(this.searchTimeout);
+        const term = this.searchInput.value.trim();
+        
+        if (!term) {
+          this.fileListElement.innerHTML = '';
+          const files = this.fileManager.getMarkdownFiles();
+          for (const path in files) {
+            const li = document.createElement('li');
+            li.textContent = path;
+            li.onclick = () => this.openFile(path, li);
+            this.fileListElement.appendChild(li);
+          }
+          return;
+        }
+
+        this.searchTimeout = setTimeout(() => {
+          this.searchContent(term);
+        }, 300);
+      }
+
+      async searchContent(term) {
+        const termLower = term.toLowerCase();
+        const results = [];
+        const files = this.fileManager.getMarkdownFiles();
+        
+        for (const path in files) {
+          const file = files[path];
+          const content = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsText(file);
+          });
+          
+          const contentLower = content.toLowerCase();
+          const fileName = path;
+          
+          if (fileName.toLowerCase().includes(termLower) || contentLower.includes(termLower)) {
+            const index = contentLower.indexOf(termLower);
+            let snippet = '';
+            
+            if (index !== -1) {
+              const start = Math.max(0, index - 40);
+              const end = Math.min(content.length, index + termLower.length + 40);
+              snippet = '...' + content.substring(start, end).replace(/\n/g, ' ') + '...';
+            }
+            
+            results.push({ path, fileName, snippet });
+          }
+        }
+        
+        this.displaySearchResults(results, termLower);
+      }
+
+      displaySearchResults(results, term) {
+        this.fileListElement.innerHTML = '';
+        this.lastSearchTerm = term;
+        
+        if (results.length === 0) {
+          this.fileListElement.innerHTML = '<li style="color: #888; cursor: default;">No se encontraron resultados</li>';
+          return;
+        }
+        
+        results.forEach(({ path, fileName, snippet }) => {
+          const li = document.createElement('li');
+          const highlightedFileName = this.highlightText(fileName, term);
+          li.innerHTML = `<strong>${highlightedFileName}</strong>`;
+          
+          if (snippet) {
+            const highlightedSnippet = this.highlightText(snippet, term);
+            li.innerHTML += `<br><small style="color: #aaa;">${highlightedSnippet}</small>`;
+          }
+          
+          li.onclick = () => this.openFile(path, li);
+          li.style.whiteSpace = 'normal';
+          li.style.wordWrap = 'break-word';
+          this.fileListElement.appendChild(li);
+        });
+      }
+
+      highlightText(text, term) {
+        const regex = new RegExp(`(${term})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+      }
+    }
+
+    // ============================================
+    // INICIALIZACIÓN DE LA APLICACIÓN.           // ============================================
+    // INICIALIZACIÓN DE LA APLICACIÓN
+    // ============================================
+    
+    // Crear instancia global de la aplicación
+    window.wikiApp = new WikiApp();
+    
+    // Exponer PDFExporter globalmente para los botones de ordenar
+    window.pdfExporter = window.wikiApp.pdfExporter;
+    
+  </script>
+</body>
+</html>
