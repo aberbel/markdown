@@ -1,0 +1,30 @@
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Animación de entrada para nuevas tareas */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.todo-list > * {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Espaciado cuando la lista está vacía */
+.todo-list:empty {
+  display: none;
+}

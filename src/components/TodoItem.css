@@ -1,0 +1,155 @@
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.todo-item:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow);
+  transform: translateX(4px);
+}
+
+.todo-item.completed {
+  background: var(--bg-color);
+  opacity: 0.7;
+}
+
+/* Checkbox personalizado */
+.checkbox-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  min-width: 24px;
+  height: 24px;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  width: 24px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.checkbox-container:hover .checkmark {
+  border-color: var(--primary-color);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 11px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Texto de la tarea */
+.todo-text {
+  flex: 1;
+  font-size: 1rem;
+  color: var(--text-color);
+  word-break: break-word;
+  transition: var(--transition);
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+/* Botón de eliminar */
+.delete-button {
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: var(--transition);
+  opacity: 0.6;
+}
+
+.delete-button:hover {
+  background: var(--danger-color);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.delete-button:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .todo-item {
+    padding: 12px;
+  }
+
+  .todo-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* Animación al eliminar */
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}
+
+.todo-item.removing {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+/* Animación del checkmark */
+@keyframes checkBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  animation: checkBounce 0.3s ease-out;
+}
