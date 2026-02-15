@@ -14,10 +14,12 @@ export default defineConfig({
       include: ['src/**/*.{js,jsx}'],
       exclude: ['src/setupTests.js', 'src/index.jsx'],
       all: true,
-      lines: 80,
-      functions: 80,
-      branches: 80,
-      statements: 80,
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
     },
   },
 });
