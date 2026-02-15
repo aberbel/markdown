@@ -81,17 +81,26 @@ todo-list-react/
 │   └── index.html              # HTML base de la aplicación
 ├── src/
 │   ├── components/             # Componentes reutilizables
-│   │   ├── TodoInput.js        # Componente input para nuevas tareas
+│   │   ├── TodoInput.jsx       # Componente input para nuevas tareas
 │   │   ├── TodoInput.css       # Estilos del input
-│   │   ├── TodoList.js         # Componente contenedor de la lista
+│   │   ├── TodoList.jsx        # Componente contenedor de la lista
 │   │   ├── TodoList.css        # Estilos de la lista
-│   │   ├── TodoItem.js         # Componente de tarea individual
+│   │   ├── TodoItem.jsx        # Componente de tarea individual
 │   │   ├── TodoItem.css        # Estilos de cada tarea
-│   │   ├── FilterButtons.js    # Componente de botones de filtro
+│   │   ├── FilterButtons.jsx   # Componente de botones de filtro
 │   │   └── FilterButtons.css   # Estilos de los filtros
-│   ├── App.js                  # Componente principal con lógica de estado
+│   ├── App.jsx                 # Componente principal con lógica de estado
 │   ├── App.css                 # Estilos globales de la aplicación
-│   └── index.js                # Punto de entrada de React
+│   ├── index.jsx               # Punto de entrada de React
+│   └── setupTests.js           # Configuración de tests
+├── test/                       # Tests separados del código fuente
+│   ├── App.test.jsx            # Tests del componente App
+│   └── components/             # Tests de componentes
+│       ├── TodoInput.test.jsx
+│       ├── TodoList.test.jsx
+│       ├── TodoItem.test.jsx
+│       └── FilterButtons.test.jsx
+├── vite.config.js              # Configuración de Vite y Vitest
 ├── package.json                # Dependencias y scripts del proyecto
 ├── .gitignore                  # Archivos ignorados por Git
 └── README.md                   # Este archivo
@@ -99,7 +108,7 @@ todo-list-react/
 
 ### 📝 Descripción de Componentes
 
-#### `App.js` - Componente Principal
+#### `App.jsx` - Componente Principal
 El cerebro de la aplicación que gestiona:
 - Estado global de las tareas (`todos`)
 - Estado del filtro actual (`filter`)
@@ -107,24 +116,24 @@ El cerebro de la aplicación que gestiona:
 - Persistencia en localStorage
 - Contadores de tareas
 
-#### `TodoInput.js` - Input de Nuevas Tareas
+#### `TodoInput.jsx` - Input de Nuevas Tareas
 - Campo de texto para escribir nuevas tareas
 - Validación para evitar tareas vacías
 - Botón para agregar tareas
 - Soporte para tecla Enter
 
-#### `TodoList.js` - Contenedor de Lista
+#### `TodoList.jsx` - Contenedor de Lista
 - Renderiza la lista completa de tareas
 - Mapea cada tarea a un componente `TodoItem`
 - Gestiona las animaciones de entrada
 
-#### `TodoItem.js` - Tarea Individual
+#### `TodoItem.jsx` - Tarea Individual
 - Checkbox personalizado para marcar como completada
 - Texto de la tarea con estilo tachado si está completada
 - Botón de eliminar con icono
 - Animaciones de hover y estado
 
-#### `FilterButtons.js` - Botones de Filtrado
+#### `FilterButtons.jsx` - Botones de Filtrado
 - Tres botones para filtrar: Todas, Activas, Completadas
 - Indicador visual del filtro activo
 - Botón adicional para limpiar tareas completadas

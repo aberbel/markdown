@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import TodoItem from './TodoItem.jsx';
+import TodoItem from '../../src/components/TodoItem.jsx';
 
 describe('TodoItem Component', () => {
   const mockTodo = {
