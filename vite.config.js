@@ -7,17 +7,13 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     setupFiles: './src/setupTests.js',
+    include: ['test/**/*.test.{js,jsx}'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/setupTests.js',
-        'src/index.jsx',
-        '**/*.css',
-        'public/',
-        'dist/',
-      ],
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/setupTests.js', 'src/index.jsx'],
+      all: true,
       thresholds: {
         lines: 80,
         functions: 80,

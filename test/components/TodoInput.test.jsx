@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import TodoInput from './TodoInput.jsx';
+import TodoInput from '../../src/components/TodoInput.jsx';
 
 describe('TodoInput Component', () => {
   it('should render input and button', () => {

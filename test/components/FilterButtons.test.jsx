@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import FilterButtons from './FilterButtons.jsx';
+import FilterButtons from '../../src/components/FilterButtons.jsx';
 
 describe('FilterButtons Component', () => {
   it('should render all three filter buttons', () => {

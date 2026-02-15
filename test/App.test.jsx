@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App from './App.jsx';
+import App from '../src/App.jsx';
 
 describe('App Component', () => {
   it('should render the App component correctly', () => {
