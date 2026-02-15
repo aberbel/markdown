@@ -26,13 +26,6 @@ function TodoInput({ onAddTodo }) {
     setInputValue('');
   };
 
-  // Manejar la tecla Enter
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSubmit(e);
-    }
-  };
-
   return (
     <form className="todo-input-container" onSubmit={handleSubmit}>
       <input
@@ -41,7 +34,6 @@ function TodoInput({ onAddTodo }) {
         placeholder="¿Qué necesitas hacer hoy?"
         value={inputValue}
         onChange={handleInputChange}
-        onKeyPress={handleKeyPress}
         autoFocus
       />
       <button 

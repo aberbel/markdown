@@ -51,7 +51,7 @@ Sigue estos pasos para instalar y ejecutar la aplicación:
 
 ```bash
 git clone <url-del-repositorio>
-cd markdown
+cd todo-list-react
 ```
 
 ### 2. Instalar las dependencias
@@ -76,7 +76,7 @@ Esto iniciará el servidor de desarrollo y abrirá automáticamente la aplicaci�
 ## 📁 Estructura del Proyecto
 
 ```
-markdown/
+todo-list-react/
 ├── public/
 │   └── index.html              # HTML base de la aplicación
 ├── src/
@@ -265,7 +265,7 @@ Este proyecto es de código abierto y está disponible para uso personal y educa
 ### Clonar para desarrollo
 ```bash
 git clone <url-del-repositorio>
-cd markdown
+cd todo-list-react
 npm install
 npm start
 ```
