@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import TodoInput from './components/TodoInput';
-import TodoList from './components/TodoList';
-import FilterButtons from './components/FilterButtons';
+import TodoInput from './components/TodoInput.jsx';
+import TodoList from './components/TodoList.jsx';
+import FilterButtons from './components/FilterButtons.jsx';
 
 function App() {
   // Estado para las tareas

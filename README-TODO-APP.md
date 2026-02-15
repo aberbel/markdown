@@ -141,7 +141,19 @@ La página se recargará automáticamente si realizas cambios.
 También verás errores de lint en la consola.
 
 ### `npm test`
-Lanza el corredor de pruebas en modo interactivo.
+Lanza el corredor de pruebas en modo interactivo con Vitest.
+Los tests se volverán a ejecutar automáticamente cuando realices cambios.
+
+### `npm run test:run`
+Ejecuta todos los tests una sola vez (útil para CI/CD).
+
+### `npm run test:ui`
+Abre una interfaz gráfica interactiva para visualizar y ejecutar tests.
+Muy útil para desarrollo y debugging de tests.
+
+### `npm run test:coverage`
+Ejecuta los tests y genera un reporte de cobertura de código.
+El reporte se genera en formato HTML en la carpeta `coverage/`.
 
 ### `npm run build`
 Construye la aplicación para producción en la carpeta `build`.
@@ -154,6 +166,146 @@ La compilación está minificada y los nombres de archivo incluyen hashes.
 **Nota: esta es una operación unidireccional. ¡Una vez que hagas `eject`, no podrás volver atrás!**
 
 Si no estás satisfecho con las opciones de configuración, puedes hacer `eject` en cualquier momento.
+
+## 🧪 Testing
+
+Esta aplicación cuenta con una suite completa de tests unitarios y de integración utilizando las mejores herramientas modernas de testing para React.
+
+### Tecnologías de Testing
+
+- **Vitest**: Framework de testing rápido y moderno, compatible con Vite
+- **Happy DOM**: Entorno DOM ligero y rápido para ejecutar tests
+- **React Testing Library**: Biblioteca para testing de componentes React
+- **@testing-library/jest-dom**: Matchers personalizados para mejorar assertions
+- **@testing-library/user-event**: Simulación realista de interacciones de usuario
+
+### Estructura de Tests
+
+```
+src/
+├── App.test.jsx                    # Tests de integración del componente principal (21 tests)
+└── components/
+    ├── TodoInput.test.jsx          # Tests del input de tareas (8 tests)
+    ├── TodoList.test.jsx           # Tests del contenedor de lista (6 tests)
+    ├── TodoItem.test.jsx           # Tests de tarea individual (7 tests)
+    └── FilterButtons.test.jsx      # Tests de botones de filtro (10 tests)
+```
+
+### Cobertura de Tests
+
+La aplicación cuenta con **52 tests** que cubren:
+
+#### App.test.jsx (Tests de Integración)
+- ✅ Renderizado correcto del componente
+- ✅ Visualización de título y componentes principales
+- ✅ Estado vacío inicial
+- ✅ Agregar nuevas tareas
+- ✅ Marcar tareas como completadas
+- ✅ Eliminar tareas
+- ✅ Filtrado de tareas (todas/activas/completadas)
+- ✅ Contador de tareas pendientes y completadas
+- ✅ Persistencia en localStorage
+- ✅ Carga de tareas desde localStorage
+- ✅ Limpiar tareas completadas
+- ✅ Estados vacíos con filtros
+- ✅ Manejo de errores de localStorage
+- ✅ Pluralización correcta de contadores
+
+#### TodoInput.test.jsx
+- ✅ Renderizado de input y botón
+- ✅ Validación de tareas vacías
+- ✅ Validación de espacios en blanco
+- ✅ Llamada correcta a callbacks
+- ✅ Limpieza del input después de agregar
+- ✅ Soporte para tecla Enter
+- ✅ Estado del botón según contenido
+
+#### TodoList.test.jsx
+- ✅ Renderizado de lista vacía
+- ✅ Renderizado de múltiples tareas
+- ✅ Paso correcto de props
+- ✅ Visualización de tareas completadas
+- ✅ Visualización de tareas pendientes
+- ✅ Mezcla de tareas completadas y pendientes
+
+#### TodoItem.test.jsx
+- ✅ Renderizado de tarea pendiente
+- ✅ Renderizado de tarea completada
+- ✅ Funcionalidad del checkbox
+- ✅ Funcionalidad del botón eliminar
+- ✅ Aplicación de clases CSS
+- ✅ Visualización correcta del texto
+
+#### FilterButtons.test.jsx
+- ✅ Renderizado de los tres botones de filtro
+- ✅ Estado activo por defecto
+- ✅ Cambio de filtros
+- ✅ Indicadores visuales de filtro activo
+- ✅ Visibilidad del botón limpiar completadas
+- ✅ Funcionalidad de limpiar completadas
+
+### Métricas de Cobertura
+
+La suite de tests alcanza una **cobertura del 98.21%**:
+
+```
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   98.21 |    97.22 |     100 |      98 |                   
+ src               |     100 |      100 |     100 |     100 |                   
+  App.jsx          |     100 |      100 |     100 |     100 |                   
+ src/components    |   95.45 |    91.66 |     100 |   95.45 |                   
+  FilterButtons.jsx|     100 |      100 |     100 |     100 |                   
+  TodoInput.jsx    |    90.9 |       50 |     100 |    90.9 |                   
+  TodoItem.jsx     |     100 |      100 |     100 |     100 |                   
+  TodoList.jsx     |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------
+```
+
+✅ **Supera el threshold de 80% requerido**
+
+### Ejecutar Tests
+
+```bash
+# Tests en modo watch (desarrollo)
+npm test
+
+# Ejecutar todos los tests una vez
+npm run test:run
+
+# Tests con interfaz gráfica
+npm run test:ui
+
+# Tests con reporte de cobertura
+npm run test:coverage
+```
+
+### Ver Reporte de Cobertura
+
+Después de ejecutar `npm run test:coverage`, puedes ver un reporte HTML detallado:
+
+1. Abre el archivo `coverage/index.html` en tu navegador
+2. Navega por los archivos para ver líneas cubiertas y no cubiertas
+3. Identifica áreas que necesitan más tests
+
+### Configuración de Tests
+
+Los tests están configurados en:
+- **vite.config.js**: Configuración de Vitest y coverage
+- **src/setupTests.js**: Setup global de tests, mocks de localStorage
+
+### Mejores Prácticas Implementadas
+
+- ✅ Tests independientes y aislados
+- ✅ Mock de localStorage para evitar efectos secundarios
+- ✅ Uso de userEvent para interacciones realistas
+- ✅ Queries accesibles (getByRole, getByText, etc.)
+- ✅ Tests descriptivos con nombres claros
+- ✅ Organización con describe/it
+- ✅ Limpieza automática entre tests
+- ✅ Cobertura completa de casos de uso
+- ✅ Tests de casos límite y errores
 
 ## 💡 Cómo Usar la Aplicación
 
@@ -207,11 +359,22 @@ Cada componente tiene su propio archivo CSS para facilitar la personalización:
 
 ## 🌐 Tecnologías Utilizadas
 
+### Producción
 - **React 18.2.0**: Biblioteca de JavaScript para construir interfaces de usuario
 - **React Hooks**: useState y useEffect para gestión de estado y efectos
 - **CSS3**: Variables CSS, Flexbox, Grid, Animaciones
 - **localStorage**: Para persistencia de datos en el navegador
 - **Create React App**: Configuración y herramientas de desarrollo
+
+### Testing y Desarrollo
+- **Vitest**: Framework de testing moderno y rápido
+- **Happy DOM**: Entorno DOM ligero para tests
+- **React Testing Library**: Testing de componentes con enfoque en accesibilidad
+- **@testing-library/jest-dom**: Matchers personalizados para assertions
+- **@testing-library/user-event**: Simulación realista de eventos de usuario
+- **@vitejs/plugin-react**: Plugin de Vite para soporte de React
+- **@vitest/ui**: Interfaz gráfica para visualizar tests
+- **@vitest/coverage-v8**: Reportes de cobertura de código
 
 ## 📱 Compatibilidad
 
